@@ -11,18 +11,12 @@
   const lockedList = document.getElementById('locked-list');
 
   // Level title thresholds table
-  const TITLES = [
-    [1, 'Rookie'], [5, 'Contender'], [10, 'Grinder'], [20, 'Warrior'],
-    [30, 'Beast'], [42, 'Titan'], [60, 'Legend']
-  ];
-
-  // Resolve user title mapping based on current level
   function titleForLevel(level) {
-    let title = TITLES[0][1];
-    for (const [threshold, name] of TITLES) if (level >= threshold) title = name;
-    return title;
+    const tiers = ['Rookie', 'Apprentice', 'Contender', 'Grinder', 'Warrior', 'Beast', 'Titan', 'Legend'];
+    const index = Math.min(tiers.length - 1, Math.floor((level - 1) / 5));
+    return tiers[index];
   }
-
+  
   // Render level progress, unlocked badge grid, and locked achievements
   function render(state) {
     const status = StorageController.milestoneStatus();
