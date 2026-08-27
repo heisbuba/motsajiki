@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Motsa Jiki — Targets</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400..700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+</head>
+<body>
+
+<main class="page">
+
+  <section class="block">
+    <h2 style="font-size:26px;">Targets</h2>
+    <div id="priority-goal-wrap"></div>
+  </section>
+
+  <section class="block">
+    <h3 style="font-family:var(--font-mono); font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:var(--on-surface-variant); border-bottom:1px solid var(--surface-container-high); padding-bottom:8px;">Active Targets</h3>
+    <div id="active-goals-list" style="display:flex; flex-direction:column; gap:12px;"></div>
+  </section>
+
+  <section class="card" style="display:flex; flex-direction:column; gap:16px; background:var(--level-1);">
+    <h3 style="font-size:20px;">Set New Target</h3>
+    <div class="field-group">
+      <label class="field-label" for="goal-template">Task</label>
+      <select class="control" id="goal-template"></select>
+    </div>
+    <div class="field-group" id="goal-exercise-wrap" style="display:none;">
+      <label class="field-label" for="goal-exercise">Exercise Name</label>
+      <input class="control" id="goal-exercise" type="text" placeholder="e.g. Push-ups" />
+    </div>
+    <div class="grid-2">
+      <div class="field-group">
+        <label class="field-label" for="goal-metric">Metric</label>
+        <select class="control" id="goal-metric"></select>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="goal-target-value">Target</label>
+        <input class="control" id="goal-target-value" type="number" placeholder="0" />
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="goal-type">Progress Type</label>
+      <select class="control" id="goal-type">
+        <option value="cumulative">Cumulative (sum over time)</option>
+        <option value="max">Best single result</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="initialize-goal-btn">Initialize</button>
+  </section>
+
+  <section class="block" style="margin-bottom:16px; opacity:0.8;">
+    <h3 style="font-family:var(--font-mono); font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:var(--on-surface-variant); border-bottom:1px solid var(--surface-container-high); padding-bottom:8px;">Archived / Completed</h3>
+    <div id="completed-goals-list"></div>
+  </section>
+
+</main>
+
+<script src="js/schema.js"></script>
+<script src="js/db.js"></script>
+<script src="js/filesystem.js"></script>
+<script src="js/gdrive.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/app.js"></script>
+<script src="js/goals.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+</body>
+</html>

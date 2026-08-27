@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Motsa Jiki — Analytics</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400..700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+</head>
+<body>
+
+<main class="page">
+
+  <section class="block">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="font-size:26px;">Analytics</h2>
+      <button class="icon-btn" id="export-btn" aria-label="Export performance" style="width:auto; height:auto; padding:6px 12px; gap:6px; display:flex; align-items:center; font-family:var(--font-mono); font-size:11px; text-transform:uppercase; border:1px solid var(--border); border-radius:var(--radius);">
+        <span class="material-symbols-outlined" style="font-size:18px;">download</span>Export
+      </button>
+    </div>
+    <div class="grid-2">
+      <div class="card stat-card">
+        <span class="stat-label">Current Streak</span>
+        <span class="stat-value" id="stat-streak">0<span class="unit">days</span></span>
+      </div>
+      <div class="card stat-card">
+        <span class="stat-label">Activity Score</span>
+        <span class="stat-value" id="stat-volume">0<span class="unit">score</span></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-header"><h3>Recent History</h3></div>
+    <div class="card card-flush" id="history-table"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-header"><h3>Performance Charts</h3></div>
+    <div class="card">
+      <span class="stat-label" style="display:block; margin-bottom:12px;">7-Day Activity</span>
+      <div class="bars" id="volume-bars"></div>
+      <div class="bar-labels" id="volume-bar-labels"></div>
+    </div>
+  </section>
+
+  <section class="block" style="margin-bottom:16px;">
+    <div class="block-header"><h3>Personal Records</h3></div>
+    <div class="pr-grid" id="pr-list"></div>
+  </section>
+
+</main>
+
+<script src="js/schema.js"></script>
+<script src="js/db.js"></script>
+<script src="js/filesystem.js"></script>
+<script src="js/gdrive.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/app.js"></script>
+<script src="js/overview.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+</body>
+</html>

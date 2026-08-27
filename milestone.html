@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Motsa Jiki — Milestones</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400..700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+</head>
+<body>
+
+<main class="page">
+
+  <section class="block">
+    <h2 style="font-size:26px; text-align:center;">Milestones</h2>
+    <div class="status-card">
+      <span class="status-label">Current Status</span>
+      <span class="status-level" id="status-level">LVL 1</span>
+      <span id="status-title" style="font-weight:600;">Rookie</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:13px; color:var(--on-surface-variant); margin-top:8px;">
+      <span>XP Progress</span>
+      <span id="xp-progress-label">0 / 1000</span>
+    </div>
+    <div class="progress-track lg"><div class="progress-fill" id="xp-progress-fill" style="width:0%;"></div></div>
+  </section>
+
+  <section class="block">
+    <div class="block-header"><h3>Badge Gallery</h3></div>
+    <div class="badge-grid" id="badge-gallery"></div>
+  </section>
+
+  <section class="block" style="margin-bottom:16px;">
+    <div class="block-header"><h3>Locked Achievements</h3></div>
+    <div id="locked-list"></div>
+  </section>
+
+</main>
+
+<script src="js/schema.js"></script>
+<script src="js/db.js"></script>
+<script src="js/filesystem.js"></script>
+<script src="js/gdrive.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/app.js"></script>
+<script src="js/badges.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+</body>
+</html>
