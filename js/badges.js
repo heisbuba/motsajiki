@@ -10,9 +10,9 @@
   const gallery = document.getElementById('badge-gallery');
   const lockedList = document.getElementById('locked-list');
 
-  // Level title thresholds table
+  //  Level tiers and titles
   function titleForLevel(level) {
-    const tiers = ['Rookie', 'Apprentice', 'Contender', 'Grinder', 'Warrior', 'Beast', 'Titan', 'Legend'];
+    const tiers = ['Rookie', 'Apprentice', 'Contender', 'Grinder', 'Warrior', 'Beast', 'Titan', 'Legend', 'Mythic', 'Elder',  'Champion', 'Warden',  'Sage', 'Archon', 'Eternal'];
     const index = Math.min(tiers.length - 1, Math.floor((level - 1) / 5));
     return tiers[index];
   }
