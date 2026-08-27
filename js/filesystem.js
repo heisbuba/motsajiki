@@ -3,13 +3,17 @@
   let directoryHandle = null;
   let permissionGranted = false;
 
+  // Verifies browser support for File System Access API
   function isSupported() {
     return typeof window.showDirectoryPicker === 'function';
   }
     
+  // Checks if a directory handle is currently retained
   function hasHandle() {
     return !!directoryHandle;
   }
+
+  // Prompts user to select a directory and stores handle reference
   async function connect() {
     if (!isSupported()) throw new Error('File System Access API not supported in this browser.');
     const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
@@ -19,7 +23,7 @@
     return true;
   }
 
-  // Called on every page load. Restores the handle from IndexedDB
+  // Restores directory handle from IndexedDB and checks permission status
   async function restore() {
     if (!isSupported()) return 'none';
     const handle = await MotsaJikiDB.getDirectoryHandle().catch(() => null);
@@ -31,7 +35,7 @@
     return 'needs-permission';
   }
 
-  // Must be called from within a user gesture (click) handler.
+  // Re-requests permission using an existing handle (must originate from user gesture)
   async function reconnect() {
     if (!directoryHandle) return false;
     const status = await directoryHandle.requestPermission({ mode: 'readwrite' });
@@ -39,20 +43,24 @@
     return permissionGranted;
   }
 
+  // Evaluates whether directory access is actively granted
   function isConnected() {
     return !!directoryHandle && permissionGranted;
   }
 
+  // Returns name of connected target folder
   function folderName() {
     return directoryHandle ? directoryHandle.name : null;
   }
 
+  // Clears handle reference and persistent storage state
   async function disconnect() {
     directoryHandle = null;
     permissionGranted = false;
     await MotsaJikiDB.clearDirectoryHandle();
   }
 
+  // Reads and parses file contents from directory
   async function load() {
     if (!directoryHandle) return null;
     try {
@@ -67,6 +75,7 @@
     }
   }
 
+  // Writes updated document JSON to target file
   async function save(doc) {
     if (!directoryHandle) return false;
     const fileHandle = await directoryHandle.getFileHandle(FILE_NAME, { create: true });
