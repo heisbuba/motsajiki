@@ -36,32 +36,14 @@
   </section>
 
   <section class="block">
-    <div class="block-header">
-      <h3>Recent History</h3>
-      <div style="display:flex; gap:6px;">
-        <button class="icon-btn" id="history-prev-btn" aria-label="Newer entries" style="width:32px; height:32px;">
-          <span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span>
-        </button>
-        <button class="icon-btn" id="history-next-btn" aria-label="Older entries" style="width:32px; height:32px;">
-          <span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span>
-        </button>
-      </div>
-    </div>
+    <div class="block-header"><h3>Recent History</h3></div>
     <div class="card card-flush" id="history-table"></div>
   </section>
 
   <section class="block">
-    <div class="block-header">
-      <h3>Performance Charts</h3>
-      <div class="range-toggle" id="chart-range-toggle" role="group" aria-label="Chart time range">
-        <button class="range-toggle-btn is-active" data-range="7d">7D</button>
-        <button class="range-toggle-btn" data-range="1m">1M</button>
-        <button class="range-toggle-btn" data-range="3m">3M</button>
-        <button class="range-toggle-btn" data-range="1y">1Y</button>
-      </div>
-    </div>
+    <div class="block-header"><h3>Performance Charts</h3></div>
     <div class="card">
-      <span class="stat-label" style="display:block; margin-bottom:12px;" id="chart-range-label">7-Day Activity</span>
+      <span class="stat-label" style="display:block; margin-bottom:12px;">7-Day Activity</span>
       <div class="bars" id="volume-bars"></div>
       <div class="bar-labels" id="volume-bar-labels"></div>
     </div>
