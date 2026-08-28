@@ -1,20 +1,17 @@
 (function (global) {
-  // Theme state key
+  // Theme setup
   const THEME_KEY = 'motsa_jiki_theme';
-
-  // Retrieve current active theme from local storage
+  
   function getStoredTheme() {
     return localStorage.getItem(THEME_KEY) || 'dark';
   }
-
-  // Set active theme attribute and persist selection
+  
   function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem(THEME_KEY, theme);
     updateThemeIcon(theme);
   }
 
-  // Update theme toggle icon label
   function updateThemeIcon(theme) {
     const themeIcon = document.getElementById('theme-icon');
     if (themeIcon) {
