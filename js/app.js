@@ -337,78 +337,134 @@
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const W = 1080, H = 1350;
-    canvas.width = W; canvas.height = H;
+    canvas.width = W; 
+    canvas.height = H;
 
-    ctx.fillStyle = '#0A0A0A';
+    // Fetch design tokens from computed root styles for UI alignment
+    const computed = getComputedStyle(document.documentElement);
+    const bg = computed.getPropertyValue('--bg').trim() || '#0f172a';
+    const level1 = computed.getPropertyValue('--level-1').trim() || '#1e293b';
+    const border = computed.getPropertyValue('--border').trim() || '#334155';
+    const primary = computed.getPropertyValue('--primary').trim() || '#6366f1';
+    const onSurface = computed.getPropertyValue('--on-surface').trim() || '#f8fafc';
+    const onSurfaceVariant = computed.getPropertyValue('--on-surface-variant').trim() || '#94a3b8';
+
+    // Canvas Background
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
-    ctx.strokeStyle = '#c3f400';
-    ctx.lineWidth = 6;
-    ctx.strokeRect(24, 24, W - 48, H - 48);
+    // Outer Border Frame
+    ctx.strokeStyle = border;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(32, 32, W - 64, H - 64);
 
-    ctx.fillStyle = '#c3f400';
-    ctx.font = 'bold 52px "Archivo Narrow", sans-serif';
+    // Header Branding
+    ctx.fillStyle = primary;
+    ctx.font = 'bold 48px "Archivo Narrow", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('MOTSA JIKI', W / 2, 110);
 
-    ctx.fillStyle = '#9a9a98';
-    ctx.font = '24px "JetBrains Mono", monospace';
-    ctx.fillText(new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), W / 2, 155);
+    // Header Date
+    ctx.fillStyle = onSurfaceVariant;
+    ctx.font = '22px "JetBrains Mono", monospace';
+    ctx.fillText(new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase(), W / 2, 150);
 
+    // 3-Column Metrics Layout (Centered Grid)
     const stats = [
       { label: 'CURRENT STREAK', value: StorageController.currentStreak() + ' DAYS' },
-      { label: 'TOTAL VOLUME', value: Math.round(StorageController.totalVolume()).toLocaleString() + ' UNITS' },
-      { label: 'WORKOUTS LOGGED', value: StorageController.activeLogs().length.toString() }
+      { label: 'TOTAL VOLUME', value: Math.round(StorageController.totalVolume()).toLocaleString() },
+      { label: 'WORKOUTS', value: StorageController.activeLogs().length.toString() }
     ];
 
-    let y = 240;
-    stats.forEach(s => {
-      ctx.fillStyle = '#9a9a98';
-      ctx.font = '20px "JetBrains Mono", monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText(s.label, 80, y);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 56px "Archivo Narrow", sans-serif';
-      ctx.fillText(s.value, 80, y + 65);
-      y += 130;
+    const colWidth = (W - 120) / 3;
+    const statsY = 220;
+
+    stats.forEach((s, idx) => {
+      const cx = 60 + (colWidth * idx) + (colWidth / 2);
+      
+      // Stat Box Background
+      ctx.fillStyle = level1;
+      ctx.beginPath();
+      ctx.roundRect(60 + (colWidth * idx) + 8, statsY, colWidth - 16, 120, 8);
+      ctx.fill();
+      ctx.strokeStyle = border;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Stat Label & Value
+      ctx.fillStyle = onSurfaceVariant;
+      ctx.font = '14px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(s.label, cx, statsY + 40);
+
+      ctx.fillStyle = onSurface;
+      ctx.font = 'bold 36px "Archivo Narrow", sans-serif';
+      ctx.fillText(s.value, cx, statsY + 88);
     });
 
+    let y = 400;
+
+    // Personal Records Section
     const prs = StorageController.personalRecords().slice(0, 3);
     if (prs.length > 0) {
-      ctx.fillStyle = '#c3f400';
-      ctx.font = 'bold 28px "Archivo Narrow", sans-serif';
-      ctx.fillText('PERSONAL RECORDS', 80, y + 20);
+      ctx.fillStyle = primary;
+      ctx.font = 'bold 24px "Archivo Narrow", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('PERSONAL RECORDS', 80, y);
+      
+      ctx.strokeStyle = border;
+      ctx.beginPath();
+      ctx.moveTo(80, y + 12);
+      ctx.lineTo(W - 80, y + 12);
+      ctx.stroke();
+
       y += 50;
       prs.forEach(pr => {
-        ctx.fillStyle = '#e5e2e1';
-        ctx.font = '24px "Inter", sans-serif';
+        ctx.fillStyle = onSurface;
+        ctx.font = '22px "Inter", sans-serif';
+        ctx.textAlign = 'left';
         ctx.fillText(`${pr.exercise ? pr.exercise : pr.templateName} ${pr.label}`, 80, y);
-        ctx.fillStyle = '#c3f400';
-        ctx.font = 'bold 36px "Archivo Narrow", sans-serif';
-        ctx.fillText(`${pr.value.toLocaleString()} ${pr.unit || ''}`, 80, y + 42);
-        y += 80;
+
+        ctx.fillStyle = primary;
+        ctx.font = 'bold 28px "Archivo Narrow", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(`${pr.value.toLocaleString()} ${pr.unit || ''}`, W - 80, y);
+
+        y += 55;
       });
     }
 
+    // Badges Section
     const status = StorageController.milestoneStatus();
     const unlocked = status.badges.filter(b => b.unlocked);
     if (unlocked.length > 0) {
       y += 20;
-      ctx.fillStyle = '#c3f400';
-      ctx.font = 'bold 28px "Archivo Narrow", sans-serif';
+      ctx.fillStyle = primary;
+      ctx.font = 'bold 24px "Archivo Narrow", sans-serif';
+      ctx.textAlign = 'left';
       ctx.fillText('BADGES EARNED', 80, y);
-      y += 45;
-      ctx.fillStyle = '#e5e2e1';
-      ctx.font = '22px "Inter", sans-serif';
-      unlocked.forEach((b, i) => {
-        ctx.fillText(`★ ${b.name}`, 80, y + (i * 34));
+
+      ctx.strokeStyle = border;
+      ctx.beginPath();
+      ctx.moveTo(80, y + 12);
+      ctx.lineTo(W - 80, y + 12);
+      ctx.stroke();
+
+      y += 50;
+      unlocked.forEach((b) => {
+        ctx.fillStyle = onSurface;
+        ctx.font = '20px "Inter", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`★ ${b.name}`, 80, y);
+        y += 40;
       });
     }
 
-    ctx.fillStyle = '#444';
+    // Tool Credit Footer 
+    ctx.fillStyle = onSurfaceVariant;
     ctx.font = '18px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('motsa-jiki.app', W / 2, H - 50);
+    ctx.fillText('Powered by Motsa Jiki App', W / 2, H - 60);
 
     const link = document.createElement('a');
     link.download = `motsa-jiki-${new Date().toISOString().slice(0, 10)}.png`;
