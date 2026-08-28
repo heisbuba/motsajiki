@@ -77,6 +77,9 @@
           ' MOTSA JIKI' +
         '</div>' +
         '<div style="display: flex; gap: 8px;">' +
+          '<a class="icon-btn" href="/help.html" aria-label="Help and Legal Information">' +
+            '<span class="material-symbols-outlined">help_outline</span>' +
+           '</a>' +
           '<button class="icon-btn" id="theme-toggle-btn" aria-label="Toggle Theme">' +
             '<span class="material-symbols-outlined" id="theme-icon">bedtime</span>' +
           '</button>' +
