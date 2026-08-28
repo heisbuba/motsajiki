@@ -210,9 +210,53 @@
   function activeTemplates() { return (state.taskTemplates || []).filter(t => !t.deleted); }
   function activeGoals() { return (state.goals || []).filter(g => !g.deleted); }
 
+  // Date bucketing helpers for range-based aggregation
+
+  function startOfDay(d) {
+    const x = new Date(d);
+    x.setHours(0, 0, 0, 0);
+    return x;
+  }
+
+  function addDays(d, n) {
+    const x = new Date(d);
+    x.setDate(x.getDate() + n);
+    return x;
+  }
+
+  function startOfWeek(d) {
+    // Monday-aligned week start
+    const x = startOfDay(d);
+    const day = x.getDay(); // 0 = Sun, 1 = Mon, ... 6 = Sat
+    const diff = day === 0 ? -6 : 1 - day;
+    return addDays(x, diff);
+  }
+
+  function startOfMonth(d) {
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  }
+
+  function addMonths(d, n) {
+    return new Date(d.getFullYear(), d.getMonth() + n, 1);
+  }
+
+  const RANGE_CONFIG = {
+    '7d': { count: 7, unit: 'day', label: d => d.toLocaleDateString('en-US', { weekday: 'short' })[0] },
+    '1m': { count: 30, unit: 'day', label: d => String(d.getDate()) },
+    '3m': { count: 13, unit: 'week', label: d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) },
+    '1y': { count: 12, unit: 'month', label: d => d.toLocaleDateString('en-US', { month: 'short' }) }
+  };
+
   function logsForDay(dateObj) {
     const key = dateObj.toDateString();
     return activeLogs().filter(l => new Date(l.date).toDateString() === key);
+  }
+
+  function logsForRange(start, end) {
+    return activeLogs().filter(l => {
+      const t = new Date(l.date);
+      return t >= start && t < end;
+    });
   }
 
   function currentStreak() {
@@ -247,15 +291,40 @@
     return activeLogs().reduce((sum, l) => sum + logVolume(l), 0);
   }
 
-  function last7DaysVolume() {
-    const days = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const vol = logsForDay(d).reduce((sum, l) => sum + logVolume(l), 0);
-      days.push({ label: d.toLocaleDateString('en-US', { weekday: 'short' })[0], date: d, volume: vol });
+  function volumeForRange(range) {
+    const cfg = RANGE_CONFIG[range];
+    if (!cfg) throw new Error(`[StorageController] Unknown range: ${range}`);
+
+    const today = startOfDay(new Date());
+    const buckets = [];
+
+    if (cfg.unit === 'day') {
+      for (let i = cfg.count - 1; i >= 0; i--) {
+        const start = addDays(today, -i);
+        buckets.push({ start, end: addDays(start, 1) });
+      }
+    } else if (cfg.unit === 'week') {
+      const currentWeekStart = startOfWeek(today);
+      for (let i = cfg.count - 1; i >= 0; i--) {
+        const start = addDays(currentWeekStart, -7 * i);
+        buckets.push({ start, end: addDays(start, 7) });
+      }
+    } else if (cfg.unit === 'month') {
+      const currentMonthStart = startOfMonth(today);
+      for (let i = cfg.count - 1; i >= 0; i--) {
+        const start = addMonths(currentMonthStart, -i);
+        buckets.push({ start, end: addMonths(start, 1) });
+      }
     }
-    return days;
+
+    return buckets.map(b => {
+      const vol = logsForRange(b.start, b.end).reduce((sum, l) => sum + logVolume(l), 0);
+      return { label: cfg.label(b.start), date: b.start, volume: vol };
+    });
+  }
+
+  function last7DaysVolume() {
+    return volumeForRange('7d');
   }
 
   function personalRecords() {
@@ -317,7 +386,7 @@
     addGoal, completeGoal, deleteGoal,
     getState: () => state,
     activeLogs, activeTemplates, activeGoals,
-    currentStreak, totalVolume, last7DaysVolume, personalRecords,
+    currentStreak, totalVolume, last7DaysVolume, volumeForRange, personalRecords,
     goalProgress, milestoneStatus, logVolume
   };
 })(window);
