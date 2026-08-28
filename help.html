@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Motsa Jiki — Help &amp; Info</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400..700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+</head>
+<body>
+
+<main class="page">
+
+  <section class="block">
+    <h2 style="font-size:26px;">Help &amp; Info</h2>
+    <p style="font-size:14px; color:var(--on-surface-variant); line-height:1.6;">
+      Quick answers on how Motsa Jiki works, plus the legal stuff.
+    </p>
+  </section>
+
+  <section class="block">
+    <h3 style="font-family:var(--font-mono); font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:var(--on-surface-variant); border-bottom:1px solid var(--surface-container-high); padding-bottom:8px;">FAQ</h3>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+
+      <details class="faq-item">
+        <summary>Do I need an account to use Motsa Jiki?</summary>
+        <p>No. Every log, target, and badge is stored right on your device — there's no sign-up and no login.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>How do Local Folder and Google Drive sync work?</summary>
+        <p>Both are optional and off by default. Local Folder saves a copy of your data to a folder you choose on this device, using your browser's file access permission. Google Drive saves a single <code>workout.json</code> file to a Drive folder Motsa Jiki creates for itself — it never reads or touches any of your other Drive files.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>Does Motsa Jiki work offline?</summary>
+        <p>Yes. It's built as an installable, offline-first app — logging workouts, tracking goals, and viewing badges all work with no connection. A network is only needed the moment you choose to sync.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>How do I export my data?</summary>
+        <p>Use the export option on the Data tab to save your logs as a CSV file, or generate a shareable PNG summary of your stats.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>How do I disconnect sync or remove my data?</summary>
+        <p>Tap the sync icon in the header to disconnect Local Folder or Google Drive at any time. Clearing this site's data from your browser removes everything Motsa Jiki has stored locally.</p>
+      </details>
+
+    </div>
+  </section>
+
+  <section class="block" style="margin-bottom:16px;">
+    <h3 style="font-family:var(--font-mono); font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:var(--on-surface-variant); border-bottom:1px solid var(--surface-container-high); padding-bottom:8px;">Legal</h3>
+    <div class="legal-links">
+      <a href="/privacy.html">
+        Privacy Policy
+        <span class="material-symbols-outlined">chevron_right</span>
+      </a>
+      <a href="/terms.html">
+        Terms of Use
+        <span class="material-symbols-outlined">chevron_right</span>
+      </a>
+      <a href="https://github.com/heisbuba/motsajiki" target="_blank" rel="noopener">
+        Report an issue on GitHub
+        <span class="material-symbols-outlined">open_in_new</span>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<script src="js/schema.js"></script>
+<script src="js/db.js"></script>
+<script src="js/filesystem.js"></script>
+<script src="js/gdrive.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+</body>
+</html>
