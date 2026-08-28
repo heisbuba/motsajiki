@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Motsa Jiki — Privacy Policy</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400..700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+</head>
+<body>
+
+<main class="page">
+
+  <section class="block">
+    <a href="/help.html" style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:12px; text-transform:uppercase; letter-spacing:0.05em; color:var(--on-surface-variant);">
+      <span class="material-symbols-outlined" style="font-size:16px;">chevron_left</span> Help
+    </a>
+    <h2 style="font-size:26px; margin-top:8px;">Privacy Policy</h2>
+  </section>
+
+  <section class="block" style="margin-bottom:16px;">
+    <div class="prose">
+      <p class="updated">Last updated: August 2026</p>
+
+      <p>Motsa Jiki is built to work without collecting anything about you. This page explains exactly what stays on your device, what's optional, and what happens if you choose to turn on sync.</p>
+
+      <h3>What we don't collect</h3>
+      <p>Motsa Jiki has no user accounts, no sign-up, and no analytics or advertising trackers. We don't collect your name, email, location, or any other personal information. Your workout logs, targets, and badges are stored locally in your browser's on-device storage.</p>
+
+      <h3>Local Folder sync (optional)</h3>
+      <p>If you connect a Local Folder, your browser writes a copy of your data to a folder you explicitly choose on your own device, using the browser's native file access permission. That data never leaves your device and is never sent to us.</p>
+
+      <h3>Google Drive sync (optional)</h3>
+      <p>If you connect Google Drive, Motsa Jiki requests access limited to files it creates itself — it cannot see or modify any other file in your Drive. A single file, <code>workout.json</code>, is created to hold your synced data.</p>
+      <p>Signing in uses Google's own authorization flow. The one-time authorization code is passed through a small server-side function so it can be exchanged for an access token; that function does not log, store, or otherwise retain your data or tokens — it simply relays the request to Google and returns the result to your browser. Your access token and refresh token are then kept in your browser's local storage, not on our servers.</p>
+      <p>You can disconnect Google Drive at any time from the sync controls, and you can also revoke Motsa Jiki's access directly from your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google Account permissions</a> page.</p>
+
+      <h3>Cookies and tracking</h3>
+      <p>Motsa Jiki does not use cookies, analytics, or advertising trackers of any kind.</p>
+
+      <h3>Data deletion</h3>
+      <p>Because your data lives on your device, you're always in control of it. You can export it at any time from the Data tab, disconnect any sync destination from the sync controls, or clear this site's data from your browser to remove everything Motsa Jiki has stored.</p>
+
+      <h3>Children's privacy</h3>
+      <p>Motsa Jiki is not directed at children and does not knowingly collect information from anyone, regardless of age, since no personal information is collected at all.</p>
+
+      <h3>Changes to this policy</h3>
+      <p>If this policy changes, the "last updated" date above will change accordingly. Continued use of Motsa Jiki after an update means you accept the revised policy.</p>
+
+      <h3>Contact</h3>
+      <p>Questions or concerns can be raised as an issue on the <a href="https://github.com/heisbuba/motsajiki" target="_blank" rel="noopener">Motsa Jiki GitHub repository</a>.</p>
+    </div>
+  </section>
+
+</main>
+
+<script src="js/schema.js"></script>
+<script src="js/db.js"></script>
+<script src="js/filesystem.js"></script>
+<script src="js/gdrive.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+</body>
+</html>
