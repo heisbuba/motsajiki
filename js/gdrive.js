@@ -2,8 +2,9 @@
   const SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
   const FILE_NAME = 'workout.json';
   const CLIENT_ID_KEY = 'motsa-jiki:gdrive-client-id';
+  const CONNECTED_KEY = 'motsa-jiki:gdrive-connected';
   // Google OAuth Web Client ID
-  const DEFAULT_CLIENT_ID = '';
+  const DEFAULT_CLIENT_ID = '357624308945-h7j0flg2sg5jk13mf68lj8hgmfdv2pm2.apps.googleusercontent.com';
 
   let tokenClient = null;
   let accessToken = null;
@@ -11,17 +12,18 @@
   let cachedFileId = null;
   let gisLoaded = false;
 
-  // Retrieves stored OAuth client ID or fallback default
   function getClientId() {
     return localStorage.getItem(CLIENT_ID_KEY) || DEFAULT_CLIENT_ID;
   }
 
-  // Persists custom OAuth client ID to local storage
   function setClientId(id) {
     localStorage.setItem(CLIENT_ID_KEY, id.trim());
   }
 
-  // Dynamically loads Google Identity Services library script
+  function hasEverConnected() {
+    return localStorage.getItem(CONNECTED_KEY) === '1';
+  }
+
   function loadGis() {
     if (gisLoaded) return Promise.resolve();
     return new Promise((resolve, reject) => {
@@ -34,7 +36,6 @@
     });
   }
 
-  // Initializes GIS token client instance
   async function ensureTokenClient() {
     const clientId = getClientId();
     if (!clientId) throw new Error('No Google OAuth Client ID configured.');
@@ -49,12 +50,10 @@
     return tokenClient;
   }
 
-  // Checks if active access token is present and unexpired
   function hasValidToken() {
     return !!accessToken && Date.now() < tokenExpiresAt - 60000; // 60s safety margin
   }
 
-  // Requests access token via GIS client
   function requestToken(promptMode) {
     return ensureTokenClient().then(client => new Promise((resolve, reject) => {
       client.callback = (resp) => {
@@ -67,12 +66,13 @@
     }));
   }
 
-  // Silent attempt only -- safe to call on every page load without a user gesture.
+  // prompt:'none' is the only GIS mode that guarantees no UI is ever shown
   async function trySilentAuth() {
     if (!getClientId()) return false;
+    if (!hasEverConnected()) return false;
     if (hasValidToken()) return true;
     try {
-      await requestToken('');
+      await requestToken('none');
       return true;
     } catch (err) {
       return false;
@@ -86,10 +86,10 @@
       throw new Error('Google Drive is not configured. Ask the developer to add a Client ID.');
     }
     await requestToken('consent');
+    localStorage.setItem(CONNECTED_KEY, '1');
     return true;
   }
 
-  // Revokes active token and clears local session state
   function signOut() {
     if (accessToken && global.google && google.accounts) {
       google.accounts.oauth2.revoke(accessToken, () => {});
@@ -97,14 +97,13 @@
     accessToken = null;
     tokenExpiresAt = 0;
     cachedFileId = null;
+    localStorage.removeItem(CONNECTED_KEY);
   }
 
-  // Returns connection status based on token validity
   function isConnected() {
     return hasValidToken();
   }
 
-  // Returns valid token or attempts silent renewal
   async function ensureToken() {
     if (hasValidToken()) return accessToken;
     const ok = await trySilentAuth();
@@ -112,7 +111,6 @@
     return accessToken;
   }
 
-  // Queries appDataFolder for target state file ID
   async function findFileId() {
     if (cachedFileId) return cachedFileId;
     const token = await ensureToken();
@@ -128,7 +126,6 @@
     return cachedFileId;
   }
 
-  // Downloads application state JSON from appDataFolder
   async function load() {
     const token = await ensureToken();
     const fileId = await findFileId();
@@ -140,7 +137,6 @@
     return res.json();
   }
 
-  // Uploads or updates application state JSON in appDataFolder
   async function save(doc) {
     const token = await ensureToken();
     const fileId = await findFileId();
@@ -171,9 +167,8 @@
     return true;
   }
 
-  // Public module API
   global.GDriveEngine = {
     getClientId, setClientId, trySilentAuth, signIn, signOut,
-    isConnected, load, save
+    isConnected, hasEverConnected, load, save
   };
 })(window);
