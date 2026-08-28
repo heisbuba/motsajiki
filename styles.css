@@ -113,6 +113,12 @@ section.block { display: flex; flex-direction: column; gap: var(--stack-gap); }
 .nav-item:active { transform: scale(0.96); }
 .nav-item.nav-active { background: var(--level-2); color: var(--primary); font-weight: 600; border: 1px solid var(--border); }
 
+/* Segmented range toggle */
+.range-toggle { display: flex; gap: 2px; background: var(--level-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 2px; }
+.range-toggle-btn { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); background: transparent; border: none; border-radius: calc(var(--radius) - 2px); padding: 5px 10px; cursor: pointer; transition: var(--transition); }
+.range-toggle-btn:hover { color: var(--on-surface); }
+.range-toggle-btn.is-active { background: var(--level-2); color: var(--primary); font-weight: 600; }
+
 /* Base button element layout and typography */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: var(--touch-min); border-radius: var(--radius); border: 1px solid transparent; font-family: var(--font-display); font-weight: 600; font-size: 14px; cursor: pointer; transition: var(--transition); width: 100%; }
 .btn:active { transform: scale(0.98); }
@@ -135,15 +141,11 @@ section.block { display: flex; flex-direction: column; gap: var(--stack-gap); }
 
 /* Standard container card styling */
 .card { background: var(--level-1); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); }
-
-/* Card variant with zero internal padding */
 .card-flush { padding: 0; overflow: hidden; }
 
 /* Workout log list item row */
 .log-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--level-1); border: 1px solid var(--border); border-radius: var(--radius); transition: var(--transition); }
-.log-item:hover { border-color: var(--border-strong); background: var(--level-2); }
-
-/* Log entry exercise category icon container */
+.log-item:hover { border-color: var(--border-strong); background: var(--level-2); 
 .log-icon { width: 36px; height: 36px; border-radius: var(--radius); background: var(--level-2); display: flex; align-items: center; justify-content: center; color: var(--on-surface); flex-shrink: 0; font-size: 18px; }
 
 /* Log item details layout */
@@ -161,9 +163,7 @@ section.block { display: flex; flex-direction: column; gap: var(--stack-gap); }
 /* Custom numerical metric input box structure */
 .metric-input-container { position: relative; border: 1px solid var(--border); border-radius: var(--radius); background: var(--level-2); padding: 6px 12px 8px; transition: var(--transition); }
 .metric-input-container:focus-within { border-color: var(--border-strong); }
-
 .metric-input-label { display: block; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); margin-bottom: 2px; }
-
 .metric-input { width: 100%; background: transparent; border: none; outline: none; font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: var(--on-surface); }
 
 /* Generic form control groupings */
@@ -176,8 +176,6 @@ select.control:focus, input.control:focus { outline: none; border-color: var(--b
 
 /* Two-column responsive form grid */
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-/* Progress Elements */
 
 /* Linear progress track container */
 .progress-track { width: 100%; height: 6px; border-radius: var(--radius-full); background: var(--level-2); border: 1px solid var(--border); overflow: hidden; }
