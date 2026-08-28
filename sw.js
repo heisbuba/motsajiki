@@ -1,5 +1,5 @@
 // Service worker cache version and static asset manifest
-const CACHE_NAME = 'motsa-jiki-v1.4.7'; 
+const CACHE_NAME = 'motsa-jiki-v1.4.8'; 
 const ASSETS = [
   '/',
   '/overview',
