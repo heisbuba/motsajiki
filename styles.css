@@ -276,3 +276,27 @@ select.control:focus, input.control:focus { outline: none; border-color: var(--b
 .weekly-banner .stats { font-family: var(--font-mono); font-size: 12px; color: var(--on-surface-variant); }
 .weekly-banner .close-btn { background: none; border: none; color: var(--on-surface-variant); font-size: 20px; cursor: pointer; padding: 0 4px; transition: var(--transition); }
 .weekly-banner .close-btn:hover { color: var(--on-surface); }
+
+/* Static content pages (Help, Privacy Policy, Terms of Use) */
+.prose { display: flex; flex-direction: column; gap: 12px; }
+.prose h2 { font-size: 22px; }
+.prose h3 { font-size: 15px; color: var(--on-surface); margin-top: 4px; }
+.prose p { margin: 0; font-size: 14px; line-height: 1.65; color: var(--on-surface-variant); }
+.prose ul, .prose ol { margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.65; color: var(--on-surface-variant); display: flex; flex-direction: column; gap: 6px; }
+.prose strong { color: var(--on-surface); }
+.prose a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
+.prose .updated { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); }
+
+/* Stacked link rows used on the Help page to point at Privacy/Terms */
+.legal-links { display: flex; flex-direction: column; gap: 8px; }
+.legal-links a { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; background: var(--level-1); border: 1px solid var(--border); border-radius: var(--radius); color: var(--on-surface); font-weight: 500; font-size: 14px; transition: var(--transition); }
+.legal-links a:hover { background: var(--level-2); }
+.legal-links a .material-symbols-outlined { color: var(--on-surface-variant); }
+
+/* Collapsible FAQ entries on the Help page */
+details.faq-item { background: var(--level-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+details.faq-item summary { cursor: pointer; font-weight: 600; font-size: 14px; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+details.faq-item summary::-webkit-details-marker { display: none; }
+details.faq-item summary::after { content: 'expand_more'; font-family: 'Material Symbols Outlined'; font-size: 20px; color: var(--on-surface-variant); transition: transform 0.15s ease; flex-shrink: 0; }
+details.faq-item[open] summary::after { transform: rotate(180deg); }
+details.faq-item p { margin-top: 10px; font-size: 13px; line-height: 1.6; color: var(--on-surface-variant); }
