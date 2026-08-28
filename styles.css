@@ -127,7 +127,7 @@ section.block { display: flex; flex-direction: column; gap: var(--stack-gap); }
 
 /* Data export button variation */
 .btn.export-option { display: flex; align-items: center; justify-content: center; gap: 10px; }
-.export-icon { flex-shrink: 0; color: var(--primary); }
+.export-icon { display: block; flex-shrink: 0; color: var(--primary); }
 
 /* Destructive action button variant */
 .btn-destructive { background: transparent; border-color: var(--secondary); color: var(--secondary); font-family: var(--font-body); font-weight: 500; }
