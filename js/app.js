@@ -173,6 +173,9 @@
     if (GDriveEngine.isConnected()) {
       setDot(driveDot, pending.drive ? 'warn' : 'on');
       if (driveLabel) driveLabel.textContent = pending.drive ? 'Google Drive (retrying...)' : 'Google Drive (connected)';
+    } else if (GDriveEngine.hasEverConnected()) {
+      setDot(driveDot, 'warn');
+      if (driveLabel) driveLabel.textContent = 'Google Drive (reconnect needed)';
     } else {
       setDot(driveDot, 'off');
       if (driveLabel) driveLabel.textContent = 'Google Drive';
