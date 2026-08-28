@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Motsa Jiki — Terms of Use</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400..700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+</head>
+<body>
+
+<main class="page">
+
+  <section class="block">
+    <a href="/help.html" style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:12px; text-transform:uppercase; letter-spacing:0.05em; color:var(--on-surface-variant);">
+      <span class="material-symbols-outlined" style="font-size:16px;">chevron_left</span> Help
+    </a>
+    <h2 style="font-size:26px; margin-top:8px;">Terms of Use</h2>
+  </section>
+
+  <section class="block" style="margin-bottom:16px;">
+    <div class="prose">
+      <p class="updated">Last updated: August 2026</p>
+
+      <p>By using Motsa Jiki, you agree to these terms. If you don't agree, please don't use the app.</p>
+
+      <h3>The service</h3>
+      <p>Motsa Jiki is a free, offline-first workout tracker that stores your data on your own device, with optional sync to a local folder or Google Drive that you control. It is provided as-is, with no guarantee of uptime, availability, or that it will be maintained indefinitely.</p>
+
+      <h3>Not medical advice</h3>
+      <p>Motsa Jiki is a logging and tracking tool, not a medical device or a substitute for professional advice. Streaks, volumes, personal records, and badges are calculated from the numbers you enter and are provided for informational purposes only. Consult a qualified professional before starting any exercise program, especially if you have an existing health condition.</p>
+
+      <h3>Your data and backups</h3>
+      <p>Because your data is stored on your device, you're responsible for keeping your own backups — for example by exporting a CSV or connecting a sync destination. We are not able to recover data that is lost due to a cleared browser, an uninstalled app, or a lost or damaged device.</p>
+
+      <h3>Third-party services</h3>
+      <p>If you choose to connect Google Drive, that connection is subject to Google's own terms and privacy policy in addition to this one. We aren't responsible for the availability or behavior of third-party services.</p>
+
+      <h3>Acceptable use</h3>
+      <p>You agree not to misuse Motsa Jiki — for example, by attempting to disrupt the service, reverse engineer it for malicious purposes, or use it in a way that violates applicable law.</p>
+
+      <h3>Limitation of liability</h3>
+      <p>To the fullest extent permitted by law, Motsa Jiki and its contributors are not liable for any indirect, incidental, or consequential damages arising from your use of the app, including loss of data.</p>
+
+      <h3>Changes to these terms</h3>
+      <p>These terms may be updated from time to time. If they change, the "last updated" date above will change accordingly. Continued use of Motsa Jiki after an update means you accept the revised terms.</p>
+
+      <h3>Contact</h3>
+      <p>Questions can be raised as an issue on the <a href="https://github.com/heisbuba/motsajiki" target="_blank" rel="noopener">Motsa Jiki GitHub repository</a>.</p>
+    </div>
+  </section>
+
+</main>
+
+<script src="js/schema.js"></script>
+<script src="js/db.js"></script>
+<script src="js/filesystem.js"></script>
+<script src="js/gdrive.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+</body>
+</html>
