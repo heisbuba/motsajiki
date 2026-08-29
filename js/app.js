@@ -120,6 +120,150 @@
     }
   }
 
+  // ---------------------------------------------------------------------
+  // SPA Router: swaps <main> content on internal navigation instead of a
+  // full page reload. Core scripts (schema/db/filesystem/gdrive/sync/app)
+  // stay loaded and keep their in-memory state (StorageController, gdrive
+  // auth, etc); only the page-specific script (log.js, goals.js,
+  // overview.js, badges.js — or none, for help/terms/privacy) is swapped
+  // out and re-executed against the freshly swapped-in markup.
+  // ---------------------------------------------------------------------
+
+  // Scripts shared by every page. Never removed/re-injected on navigation.
+  const SHARED_SCRIPTS = new Set([
+    'js/schema.js', 'js/db.js', 'js/filesystem.js',
+    'js/gdrive.js', 'js/sync.js', 'js/app.js'
+  ]);
+
+  // Tracks the currently-injected page-specific <script> element(s), if any,
+  // so they can be removed and replaced when navigating to a new page.
+  let currentPageScriptEls = [];
+
+  // Clears all subscribers to StorageController state changes. Safe to call
+  // on every navigation because each page script registers at most one
+  // MotsaJiki.onData() listener of its own — nothing global depends on it.
+  function resetDataListeners() {
+    dataListeners.length = 0;
+  }
+
+  // Re-applies per-page DOM hydration that would otherwise only run once on
+  // initial load: active-nav highlighting, sync control wiring/status
+  // (index.html only), and the today's-date label (index.html only).
+  function hydratePage() {
+    highlightActiveNav();
+    wireSyncControls();
+    refreshSyncStatusUI();
+    const dateEl = document.getElementById('current-date');
+    if (dateEl) {
+      dateEl.textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
+    }
+  }
+
+  // Removes the previous page's dedicated script (if any) and injects/executes
+  // the new page's dedicated script (if any), found by diffing the fetched
+  // document's <script src> tags against SHARED_SCRIPTS.
+  function swapPageScript(newDoc) {
+    currentPageScriptEls.forEach(el => el.remove());
+    currentPageScriptEls = [];
+    resetDataListeners();
+
+    const newSrcs = Array.from(newDoc.querySelectorAll('script[src]'))
+      .map(el => el.getAttribute('src'))
+      .filter(src => src && !SHARED_SCRIPTS.has(src));
+
+    newSrcs.forEach(src => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = false; // preserve document order / synchronous-style execution
+      document.body.appendChild(script);
+      currentPageScriptEls.push(script);
+    });
+  }
+
+  // Scrolls to a hash target (e.g. #sync-controls) or, absent a hash, to
+  // the top of the page — matching normal browser navigation behavior.
+  function scrollToTarget(hash) {
+    if (hash) {
+      const el = document.querySelector(hash);
+      if (el) { el.scrollIntoView({ behavior: 'smooth' }); return; }
+    }
+    window.scrollTo(0, 0);
+  }
+
+  // Navigates to an internal URL by fetching its markup and swapping <main>,
+  // instead of triggering a full page reload. Falls back to a real
+  // navigation if anything about the fetch/parse goes wrong.
+  async function navigateTo(url, { push = true } = {}) {
+    const target = new URL(url, location.href);
+
+    if (target.origin !== location.origin) {
+      location.href = url;
+      return;
+    }
+
+    // Same page, just a different (or absent) hash — no fetch needed.
+    if (target.pathname === location.pathname) {
+      if (push) history.pushState({ url: target.href }, '', target.href);
+      scrollToTarget(target.hash);
+      return;
+    }
+
+    let html;
+    try {
+      const res = await fetch(target.pathname);
+      if (!res.ok) throw new Error(`Navigation fetch failed: ${res.status}`);
+      html = await res.text();
+    } catch (err) {
+      console.warn('[router] fetch failed, falling back to full navigation', err);
+      location.href = url;
+      return;
+    }
+
+    const newDoc = new DOMParser().parseFromString(html, 'text/html');
+    const newMain = newDoc.querySelector('main');
+    const oldMain = document.querySelector('main');
+    if (!newMain || !oldMain) {
+      location.href = url;
+      return;
+    }
+
+    document.title = newDoc.title || document.title;
+    oldMain.replaceWith(newMain);
+
+    if (push) history.pushState({ url: target.href }, '', target.href);
+
+    hydratePage();
+    swapPageScript(newDoc);
+    scrollToTarget(target.hash);
+  }
+
+  // Intercepts clicks on same-origin, same-tab links (nav items, header
+  // links, in-content links like help.html's privacy/terms rows) and routes
+  // them through navigateTo() instead of letting the browser navigate.
+  function wireRouterLinks() {
+    document.addEventListener('click', (e) => {
+      if (e.defaultPrevented || e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+      const anchor = e.target.closest('a[href]');
+      if (!anchor) return;
+      if (anchor.target && anchor.target !== '_self') return; // e.g. target="_blank"
+      if (anchor.hasAttribute('download')) return;
+
+      let url;
+      try { url = new URL(anchor.getAttribute('href'), location.href); }
+      catch { return; }
+      if (url.origin !== location.origin) return;
+
+      e.preventDefault();
+      navigateTo(url.href);
+    });
+
+    window.addEventListener('popstate', () => {
+      navigateTo(location.href, { push: false });
+    });
+  }
+
   // Display temporary notification message
   function toast(message, tone = 'default') {
     let host = document.getElementById('toast-host');
@@ -296,14 +440,18 @@
   // Initialize application services and lifecycle handlers on load
   document.addEventListener('DOMContentLoaded', async () => {
     injectChrome();
-    highlightActiveNav();
-    wireSyncControls();
     wireThemeControls();
+    hydratePage();
 
-    const dateEl = document.getElementById('current-date');
-    if (dateEl) {
-      dateEl.textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
-    }
+    // Snapshot whichever page-specific <script> tag was statically loaded
+    // with this initial page, so the router can remove/replace it on the
+    // first SPA navigation. It already ran (browsers execute non-deferred
+    // scripts in document order before DOMContentLoaded), so it's left
+    // alone here — just tracked for later cleanup.
+    currentPageScriptEls = Array.from(document.querySelectorAll('script[src]'))
+      .filter(el => !SHARED_SCRIPTS.has(el.getAttribute('src')));
+    history.replaceState({ url: location.href }, '', location.href);
+    wireRouterLinks();
 
     StorageController.subscribe(state => {
       if (!state) return;
