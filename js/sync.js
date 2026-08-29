@@ -365,6 +365,23 @@
     return { current, pct, remaining: Math.max(0, goal.targetValue - current) };
   }
 
+  // Derives deadline pacing/overdue info for a goal. Returns null if no deadline set.
+  // "overdue" is computed live from the current date, never persisted, so it can't
+  // go stale or need conflict resolution across synced devices.
+  function goalDeadlineInfo(goal, progress) {
+    if (!goal.deadline) return null;
+    const now = startOfDay(new Date());
+    const due = startOfDay(new Date(goal.deadline));
+    const daysLeft = Math.round((due - now) / 86400000);
+    const overdue = !goal.completed && daysLeft < 0;
+    const completedEarly = !!goal.completed && daysLeft >= 0;
+    // Per-day pace only makes sense for cumulative goals with time still remaining.
+    const perDay = (!goal.completed && goal.type !== 'max' && daysLeft > 0)
+      ? progress.remaining / daysLeft
+      : null;
+    return { daysLeft, overdue, completedEarly, perDay };
+  }
+
   function milestoneStatus() {
     const totalLogs = activeLogs().length;
     const streak = currentStreak();
@@ -387,6 +404,6 @@
     getState: () => state,
     activeLogs, activeTemplates, activeGoals,
     currentStreak, totalVolume, last7DaysVolume, volumeForRange, personalRecords,
-    goalProgress, milestoneStatus, logVolume
+    goalProgress, goalDeadlineInfo, milestoneStatus, logVolume
   };
 })(window);
