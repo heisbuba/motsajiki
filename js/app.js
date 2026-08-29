@@ -38,9 +38,6 @@
   // Set initial theme before layout render to prevent flicker
   setTheme(getStoredTheme());
 
-  // Build inline SVG markup referencing the shared /icons/icons.svg sprite.
-  // Used anywhere an icon name comes from data (badges, task templates) rather
-  // than being hardcoded in markup. opts: { size: px, id: 'dom-id' }
   function iconSvg(name, opts = {}) {
     const sizeAttr = opts.size ? ` style="width:${opts.size}px;height:${opts.size}px;"` : '';
     const idAttr = opts.id ? ` id="${opts.id}"` : '';
@@ -120,35 +117,18 @@
     }
   }
 
-  // ---------------------------------------------------------------------
-  // SPA Router: swaps <main> content on internal navigation instead of a
-  // full page reload. Core scripts (schema/db/filesystem/gdrive/sync/app)
-  // stay loaded and keep their in-memory state (StorageController, gdrive
-  // auth, etc); only the page-specific script (log.js, goals.js,
-  // overview.js, badges.js — or none, for help/terms/privacy) is swapped
-  // out and re-executed against the freshly swapped-in markup.
-  // ---------------------------------------------------------------------
-
-  // Scripts shared by every page. Never removed/re-injected on navigation.
+  // SPA Router
   const SHARED_SCRIPTS = new Set([
     'js/schema.js', 'js/db.js', 'js/filesystem.js',
     'js/gdrive.js', 'js/sync.js', 'js/app.js'
   ]);
 
-  // Tracks the currently-injected page-specific <script> element(s), if any,
-  // so they can be removed and replaced when navigating to a new page.
   let currentPageScriptEls = [];
 
-  // Clears all subscribers to StorageController state changes. Safe to call
-  // on every navigation because each page script registers at most one
-  // MotsaJiki.onData() listener of its own — nothing global depends on it.
   function resetDataListeners() {
     dataListeners.length = 0;
   }
 
-  // Re-applies per-page DOM hydration that would otherwise only run once on
-  // initial load: active-nav highlighting, sync control wiring/status
-  // (index.html only), and the today's-date label (index.html only).
   function hydratePage() {
     highlightActiveNav();
     wireSyncControls();
@@ -159,9 +139,6 @@
     }
   }
 
-  // Removes the previous page's dedicated script (if any) and injects/executes
-  // the new page's dedicated script (if any), found by diffing the fetched
-  // document's <script src> tags against SHARED_SCRIPTS.
   function swapPageScript(newDoc) {
     currentPageScriptEls.forEach(el => el.remove());
     currentPageScriptEls = [];
@@ -174,14 +151,12 @@
     newSrcs.forEach(src => {
       const script = document.createElement('script');
       script.src = src;
-      script.async = false; // preserve document order / synchronous-style execution
+      script.async = false; 
       document.body.appendChild(script);
       currentPageScriptEls.push(script);
     });
   }
 
-  // Scrolls to a hash target (e.g. #sync-controls) or, absent a hash, to
-  // the top of the page — matching normal browser navigation behavior.
   function scrollToTarget(hash) {
     if (hash) {
       const el = document.querySelector(hash);
@@ -190,9 +165,7 @@
     window.scrollTo(0, 0);
   }
 
-  // Navigates to an internal URL by fetching its markup and swapping <main>,
-  // instead of triggering a full page reload. Falls back to a real
-  // navigation if anything about the fetch/parse goes wrong.
+  // Navigates to an internal URL by fetching its markup and swapping
   async function navigateTo(url, { push = true } = {}) {
     const target = new URL(url, location.href);
 
@@ -237,9 +210,7 @@
     scrollToTarget(target.hash);
   }
 
-  // Intercepts clicks on same-origin, same-tab links (nav items, header
-  // links, in-content links like help.html's privacy/terms rows) and routes
-  // them through navigateTo() instead of letting the browser navigate.
+  // Intercepts clicks on same-origin, same-tab links 
   function wireRouterLinks() {
     document.addEventListener('click', (e) => {
       if (e.defaultPrevented || e.button !== 0) return;
@@ -443,11 +414,6 @@
     wireThemeControls();
     hydratePage();
 
-    // Snapshot whichever page-specific <script> tag was statically loaded
-    // with this initial page, so the router can remove/replace it on the
-    // first SPA navigation. It already ran (browsers execute non-deferred
-    // scripts in document order before DOMContentLoaded), so it's left
-    // alone here — just tracked for later cleanup.
     currentPageScriptEls = Array.from(document.querySelectorAll('script[src]'))
       .filter(el => !SHARED_SCRIPTS.has(el.getAttribute('src')));
     history.replaceState({ url: location.href }, '', location.href);
@@ -494,9 +460,7 @@
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    const W = 1080, H = 1350;
-    canvas.width = W; 
-    canvas.height = H;
+    const W = 1080;
 
     // Fetch design tokens from computed root styles for UI alignment
     const computed = getComputedStyle(document.documentElement);
@@ -506,6 +470,18 @@
     const primary = computed.getPropertyValue('--primary').trim() || '#6366f1';
     const onSurface = computed.getPropertyValue('--on-surface').trim() || '#f8fafc';
     const onSurfaceVariant = computed.getPropertyValue('--on-surface-variant').trim() || '#94a3b8';
+
+    const prs = StorageController.personalRecords();
+    const status = StorageController.milestoneStatus();
+    const unlocked = status.badges.filter(b => b.unlocked);
+
+    let contentBottom = 400;
+    if (prs.length > 0) contentBottom += 50 + prs.length * 55;
+    if (unlocked.length > 0) contentBottom += 20 + 50 + unlocked.length * 40;
+
+    const H = Math.max(700, contentBottom + 140);
+    canvas.width = W;
+    canvas.height = H;
 
     // Canvas Background
     ctx.fillStyle = bg;
@@ -563,7 +539,6 @@
     let y = 400;
 
     // Personal Records Section
-    const prs = StorageController.personalRecords().slice(0, 3);
     if (prs.length > 0) {
       ctx.fillStyle = primary;
       ctx.font = 'bold 24px "Archivo Narrow", sans-serif';
@@ -593,8 +568,6 @@
     }
 
     // Badges Section
-    const status = StorageController.milestoneStatus();
-    const unlocked = status.badges.filter(b => b.unlocked);
     if (unlocked.length > 0) {
       y += 20;
       ctx.fillStyle = primary;
