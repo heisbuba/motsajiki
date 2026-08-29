@@ -95,7 +95,7 @@
     }).join('');
 
     // Render personal records
-    const prs = StorageController.personalRecords().slice(0, 6);
+    const prs = StorageController.personalRecords();
     if (prs.length === 0) {
       prList.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">No personal records yet.</div>';
     } else {
