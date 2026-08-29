@@ -1,5 +1,5 @@
 // Service worker cache version and static asset manifest
-const CACHE_NAME = 'motsa-jiki-v1.5.0'; 
+const CACHE_NAME = 'motsa-jiki-v1.6.0';
 const ASSETS = [
   '/',
   '/overview',
@@ -22,23 +22,10 @@ const ASSETS = [
   '/js/badges.js',
   '/fonts/fonts.css',
   // Archivo Narrow
-  '/fonts/archivo-narrow-vietnamese.woff2',
-  '/fonts/archivo-narrow-latin-ext.woff2',
   '/fonts/archivo-narrow-latin.woff2',
   // Inter
-  '/fonts/inter-cyrillic-ext.woff2',
-  '/fonts/inter-cyrillic.woff2',
-  '/fonts/inter-greek-ext.woff2',
-  '/fonts/inter-greek.woff2',
-  '/fonts/inter-vietnamese.woff2',
-  '/fonts/inter-latin-ext.woff2',
   '/fonts/inter-latin.woff2',
   // JetBrains Mono
-  '/fonts/jetbrains-cyrillic-ext.woff2',
-  '/fonts/jetbrains-cyrillic.woff2',
-  '/fonts/jetbrains-greek.woff2',
-  '/fonts/jetbrains-vietnamese.woff2',
-  '/fonts/jetbrains-latin-ext.woff2',
   '/fonts/jetbrains-latin.woff2',
   // Icon sprite
   '/icons/icons.svg'
