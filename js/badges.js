@@ -33,7 +33,7 @@
       ? '<div class="empty-state" style="grid-column:1/-1;">No badges unlocked yet — get logging.</div>'
       : unlocked.map(b => `
         <div class="badge-card">
-          <div class="badge-hex"><span class="material-symbols-outlined">${escapeHtml(b.icon)}</span></div>
+          <div class="badge-hex">${MotsaJiki.iconSvg(b.icon)}</div>
           <span class="badge-name">${escapeHtml(b.name)}</span>
           <span class="badge-desc">${escapeHtml(b.desc)}</span>
         </div>`).join('');
@@ -46,7 +46,7 @@
           return `<div class="locked-row">
             <div class="top">
               <span style="display:flex; align-items:center; gap:8px;">
-                <span class="material-symbols-outlined" style="font-size:18px;">lock</span> ${escapeHtml(b.name)}
+                <svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-lock"></use></svg> ${escapeHtml(b.name)}
               </span>
               <span class="progress-num">${b.progress.toLocaleString()} / ${b.target.toLocaleString()}</span>
             </div>

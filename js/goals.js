@@ -118,7 +118,7 @@
           </div>
           <div class="progress-track"><div class="progress-fill" style="width:${p.pct}%;"></div></div>
           <div class="goal-footer"><span>${p.remaining.toLocaleString()} left</span>
-            <button class="log-delete" data-goal-id="${escapeHtml(g.id)}" aria-label="Delete goal"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>
+            <button class="log-delete" data-goal-id="${escapeHtml(g.id)}" aria-label="Delete goal"><svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-close"></use></svg></button>
           </div>
         </div>`;
       }).join('');
@@ -131,7 +131,7 @@
       ? '<div class="empty-state">Nothing completed yet.</div>'
       : completed.map(g => {
           const tpl = templatesById[g.templateId];
-          return `<div class="goal-completed"><span class="name">${escapeHtml(goalTitle(g, tpl))}</span><span class="material-symbols-outlined" style="color:var(--on-surface-variant);">check_circle</span></div>`;
+          return `<div class="goal-completed"><span class="name">${escapeHtml(goalTitle(g, tpl))}</span><svg class="icon" style="color:var(--on-surface-variant);"><use href="/icons/icons.svg#icon-check_circle"></use></svg></div>`;
         }).join('');
   }
 

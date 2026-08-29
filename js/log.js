@@ -39,7 +39,7 @@
         <option value="number" ${!prefill || prefill.type === 'number' ? 'selected' : ''}>Number</option>
         <option value="text" ${prefill && prefill.type === 'text' ? 'selected' : ''}>Text</option>
       </select>
-      <button class="log-delete" type="button" aria-label="Remove metric"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>`;
+      <button class="log-delete" type="button" aria-label="Remove metric"><svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-close"></use></svg></button>`;
     el.querySelector('button').addEventListener('click', () => {
       ctFieldRows = ctFieldRows.filter(r => r.id !== row.id);
       el.remove();
@@ -82,8 +82,8 @@
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; background:var(--level-2); border:1px solid var(--border); border-radius:var(--radius);">
         <span style="font-weight:600;">${escapeHtml(t.name)}</span>
         <span style="display:flex; gap:4px;">
-          <button class="icon-btn" style="width:32px; height:32px;" data-edit-tpl="${escapeHtml(t.id)}" aria-label="Edit"><span class="material-symbols-outlined" style="font-size:18px;">edit</span></button>
-          <button class="icon-btn" style="width:32px; height:32px; color:var(--secondary);" data-delete-tpl="${escapeHtml(t.id)}" aria-label="Delete"><span class="material-symbols-outlined" style="font-size:18px;">delete</span></button>
+          <button class="icon-btn" style="width:32px; height:32px;" data-edit-tpl="${escapeHtml(t.id)}" aria-label="Edit"><svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-edit"></use></svg></button>
+          <button class="icon-btn" style="width:32px; height:32px; color:var(--secondary);" data-delete-tpl="${escapeHtml(t.id)}" aria-label="Delete"><svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-delete"></use></svg></button>
         </span>
       </div>`).join('');
 
@@ -193,7 +193,7 @@
     if (editingLogId) {
       StorageController.updateLog(editingLogId, { templateId: tpl.id, notes: notesInput.value, metrics });
       editingLogId = null;
-      addBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">add</span> Add Log';
+      addBtn.innerHTML = '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-add"></use></svg> Add Log';
       addBtn.classList.remove('btn-primary');
       addBtn.classList.add('btn-ghost');
       MotsaJiki.toast('Log updated.');
@@ -256,7 +256,7 @@
       const row = document.createElement('div');
       row.className = 'log-item';
       row.innerHTML = `
-        <div class="log-icon"><span class="material-symbols-outlined">${escapeHtml(iconForTemplate(tpl))}</span></div>
+        <div class="log-icon">${MotsaJiki.iconSvg(iconForTemplate(tpl))}</div>
         <div class="log-main">
           <span class="log-name">${escapeHtml(name)}${escapeHtml(exercise)}</span>
           <span class="log-time">${escapeHtml(time)}</span>
@@ -267,10 +267,10 @@
         </div>
         <div class="log-actions">
           <button class="log-edit" aria-label="Edit log">
-            <span class="material-symbols-outlined" style="font-size:20px;">edit</span>
+            <svg class="icon" style="width:20px;height:20px;"><use href="/icons/icons.svg#icon-edit"></use></svg>
           </button>
           <button class="log-delete" data-log-id="${escapeHtml(log.id)}" aria-label="Delete log">
-            <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+            <svg class="icon" style="width:20px;height:20px;"><use href="/icons/icons.svg#icon-close"></use></svg>
           </button>
         </div>`;
       row.querySelector('.log-delete').addEventListener('click', () => {
@@ -287,7 +287,7 @@
             input.value = log.metrics[input.dataset.fieldKey];
           }
         });
-        addBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">save</span> Update Log';
+        addBtn.innerHTML = '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-save"></use></svg> Update Log';
         addBtn.classList.remove('btn-ghost');
         addBtn.classList.add('btn-primary');
         document.getElementById('template-selector').closest('section').scrollIntoView({ behavior: 'smooth' });

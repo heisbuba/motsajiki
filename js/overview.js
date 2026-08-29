@@ -103,7 +103,7 @@
         const title = `${pr.exercise ? pr.exercise : pr.templateName} ${pr.label}`;
         return `
         <div class="card pr-card">
-          <span class="pr-title"><span class="material-symbols-outlined" style="font-size:16px;">emoji_events</span>${escapeHtml(title)}</span>
+          <span class="pr-title"><svg class="icon" style="width:16px;height:16px;"><use href="/icons/icons.svg#icon-emoji_events"></use></svg>${escapeHtml(title)}</span>
           <span class="pr-value">${pr.value.toLocaleString()}<span style="font-size:14px; color:var(--on-surface-variant); font-family:var(--font-mono); margin-left:4px;">${escapeHtml(pr.unit || '')}</span></span>
         </div>`;
       }).join('');

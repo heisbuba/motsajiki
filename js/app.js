@@ -16,7 +16,8 @@
     const themeIcon = document.getElementById('theme-icon');
     if (themeIcon) {
       // Show moon for dark, sun for light
-      themeIcon.textContent = theme === 'dark' ? 'bedtime' : 'light_mode';
+      const use = themeIcon.querySelector('use');
+      if (use) use.setAttribute('href', '/icons/icons.svg#icon-' + (theme === 'dark' ? 'bedtime' : 'light_mode'));
     }
   }
 
@@ -36,6 +37,15 @@
 
   // Set initial theme before layout render to prevent flicker
   setTheme(getStoredTheme());
+
+  // Build inline SVG markup referencing the shared /icons/icons.svg sprite.
+  // Used anywhere an icon name comes from data (badges, task templates) rather
+  // than being hardcoded in markup. opts: { size: px, id: 'dom-id' }
+  function iconSvg(name, opts = {}) {
+    const sizeAttr = opts.size ? ` style="width:${opts.size}px;height:${opts.size}px;"` : '';
+    const idAttr = opts.id ? ` id="${opts.id}"` : '';
+    return `<svg class="icon"${idAttr}${sizeAttr}><use href="/icons/icons.svg#icon-${escapeHtml(name)}"></use></svg>`;
+  }
 
   // Escape HTML characters to prevent XSS
   function escapeHtml(value) {
@@ -73,18 +83,18 @@
       header.className = 'topbar';
       header.innerHTML =
         '<div class="brand">' +
-          '<span class="material-symbols-outlined" style="font-variation-settings:\'FILL\' 1;">fitness_center</span>' +
+          '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-fitness_center\"></use></svg>' +
           ' MOTSA JIKI' +
         '</div>' +
         '<div style="display: flex; gap: 8px;">' +
           '<a class="icon-btn" href="/help" aria-label="Help and Legal Information">' +
-            '<span class="material-symbols-outlined">help_outline</span>' +
+            '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-help_outline\"></use></svg>' +
            '</a>' +
           '<button class="icon-btn" id="theme-toggle-btn" aria-label="Toggle Theme">' +
-            '<span class="material-symbols-outlined" id="theme-icon">bedtime</span>' +
+            '<svg class=\"icon\" id=\"theme-icon\"><use href=\"/icons/icons.svg#icon-bedtime\"></use></svg>' +
           '</button>' +
           '<a class="icon-btn" href="' + syncHref + '" aria-label="Sync status">' +
-            '<span class="material-symbols-outlined">cloud_sync</span>' +
+            '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-cloud_sync\"></use></svg>' +
           '</a>' +
         '</div>';
       document.body.insertBefore(header, document.body.firstChild);
@@ -95,16 +105,16 @@
       nav.className = 'bottom-nav';
       nav.innerHTML =
         '<a class="nav-item" data-nav-link="index.html" href="/">' +
-          '<span class="material-symbols-outlined">event_note</span>Log' +
+          '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-event_note\"></use></svg>Log' +
         '</a>' +
         '<a class="nav-item" data-nav-link="overview.html" href="/overview">' +
-          '<span class="material-symbols-outlined">monitoring</span>Data' +
+          '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-monitoring\"></use></svg>Data' +
         '</a>' +
         '<a class="nav-item" data-nav-link="goals.html" href="/goals">' +
-          '<span class="material-symbols-outlined">emoji_events</span>Goals' +
+          '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-emoji_events\"></use></svg>Goals' +
         '</a>' +
         '<a class="nav-item" data-nav-link="milestone.html" href="/milestone">' +
-          '<span class="material-symbols-outlined">military_tech</span>Badges' +
+          '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-military_tech\"></use></svg>Badges' +
         '</a>';
       document.body.appendChild(nav);
     }
@@ -609,6 +619,7 @@
   global.MotsaJiki = {
     toast,
     escapeHtml,
+    iconSvg,
     onData,
     renderTemplateFields,
     readTemplateFields,
