@@ -306,3 +306,10 @@ details.faq-item summary::-webkit-details-marker { display: none; }
 details.faq-item summary::after { content: ''; width: 8px; height: 8px; flex-shrink: 0; border-right: 1.75px solid var(--on-surface-variant); border-bottom: 1.75px solid var(--on-surface-variant); transform: rotate(45deg); transition: transform 0.15s ease; margin-top: -4px; }
 details.faq-item[open] summary::after { transform: rotate(-135deg); margin-top: 0; }
 details.faq-item p { margin-top: 10px; font-size: 13px; line-height: 1.6; color: var(--on-surface-variant); }
+
+/* Deadline countdown / overdue / early-completion indicators */
+.deadline-row { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; }
+.deadline-early { color: var(--primary); font-weight: 600; }
+.tag { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 8px; border-radius: var(--radius-full); border: 1px solid transparent; }
+.tag-overdue { color: var(--error); border-color: var(--error); background: color-mix(in srgb, var(--error) 12%, transparent); }
+.tag-early { color: var(--primary); border-color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, transparent); }
