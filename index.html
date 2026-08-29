@@ -23,7 +23,7 @@
     <p class="hero-label" id="current-date-label">TODAY</p>
     <h2 class="hero-value" id="current-date">--</h2>
     <button class="btn btn-primary" id="start-workout-btn" style="height:64px; margin-top:8px;">
-      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">play_arrow</span>
+      <svg class="icon"><use href="/icons/icons.svg#icon-play_arrow"></use></svg>
       START WORKOUT
     </button>
   </section>
@@ -32,7 +32,7 @@
     <div class="block-header">
       <h3>Quick Log</h3>
       <button class="icon-btn" id="toggle-custom-template-btn" aria-label="New custom task" style="width:auto; height:auto; padding:4px 8px; gap:4px; display:flex; align-items:center; font-family:var(--font-mono); font-size:11px; text-transform:uppercase;">
-        <span class="material-symbols-outlined" style="font-size:16px;">add</span>New Task
+        <svg class="icon" style="width:16px;height:16px;"><use href="/icons/icons.svg#icon-add"></use></svg>New Task
       </button>
     </div>
 
@@ -65,7 +65,7 @@
         <input class="control" id="log-notes" type="text" placeholder="e.g. Morning warm-up session" />
       </div>
       <button class="btn btn-ghost" id="add-log-btn">
-        <span class="material-symbols-outlined" style="font-size:18px;">add</span> Add Log
+        <svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-add"></use></svg> Add Log
       </button>
     </div>
   </section>
@@ -85,14 +85,14 @@
     <div style="display:flex; flex-direction:column; gap:12px;">
       <button class="sync-btn" data-action="sync-local">
         <span class="sync-btn-label">
-          <span class="material-symbols-outlined" style="color:var(--on-surface-variant);">folder_open</span>
+          <svg class="icon" style="color:var(--on-surface-variant);"><use href="/icons/icons.svg#icon-folder_open"></use></svg>
           <span data-label="local">Local Folder</span>
         </span>
         <span class="dot dot-off" data-dot="local"></span>
       </button>
       <button class="sync-btn" data-action="sync-drive">
         <span class="sync-btn-label">
-          <span class="material-symbols-outlined" style="color:var(--on-surface-variant);">cloud</span>
+          <svg class="icon" style="color:var(--on-surface-variant);"><use href="/icons/icons.svg#icon-cloud"></use></svg>
           <span data-label="drive">Google Drive</span>
         </span>
         <span class="dot dot-off" data-dot="drive"></span>

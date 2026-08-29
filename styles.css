@@ -266,8 +266,8 @@ select.control:focus, input.control:focus { outline: none; border-color: var(--b
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast-warn { border-color: var(--secondary); color: var(--secondary); background: var(--level-1); }
 
-/* Material Symbols icon sizing and baseline alignment override */
-.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; font-size: 20px; vertical-align: middle; }
+/* SVG icon sizing and baseline alignment (replaces the old Material Symbols icon font) */
+.icon { width: 20px; height: 20px; display: inline-block; vertical-align: middle; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Social profile link icons row */
 .social-row .social-icons { display: flex; gap: 12px; justify-content: center; padding: 4px 0; }
@@ -297,12 +297,12 @@ select.control:focus, input.control:focus { outline: none; border-color: var(--b
 .legal-links { display: flex; flex-direction: column; gap: 8px; }
 .legal-links a { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; background: var(--level-1); border: 1px solid var(--border); border-radius: var(--radius); color: var(--on-surface); font-weight: 500; font-size: 14px; transition: var(--transition); }
 .legal-links a:hover { background: var(--level-2); }
-.legal-links a .material-symbols-outlined { color: var(--on-surface-variant); }
+.legal-links a .icon { color: var(--on-surface-variant); }
 
 /* Collapsible FAQ entries on the Help page */
 details.faq-item { background: var(--level-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
 details.faq-item summary { cursor: pointer; font-weight: 600; font-size: 14px; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 details.faq-item summary::-webkit-details-marker { display: none; }
-details.faq-item summary::after { content: 'expand_more'; font-family: 'Material Symbols Outlined'; font-size: 20px; color: var(--on-surface-variant); transition: transform 0.15s ease; flex-shrink: 0; }
-details.faq-item[open] summary::after { transform: rotate(180deg); }
+details.faq-item summary::after { content: ''; width: 8px; height: 8px; flex-shrink: 0; border-right: 1.75px solid var(--on-surface-variant); border-bottom: 1.75px solid var(--on-surface-variant); transform: rotate(45deg); transition: transform 0.15s ease; margin-top: -4px; }
+details.faq-item[open] summary::after { transform: rotate(-135deg); margin-top: 0; }
 details.faq-item p { margin-top: 10px; font-size: 13px; line-height: 1.6; color: var(--on-surface-variant); }

@@ -1,5 +1,5 @@
 // Service worker cache version and static asset manifest
-const CACHE_NAME = 'motsa-jiki-v1.4.8'; 
+const CACHE_NAME = 'motsa-jiki-v1.5.0'; 
 const ASSETS = [
   '/',
   '/overview',
@@ -40,8 +40,8 @@ const ASSETS = [
   '/fonts/jetbrains-vietnamese.woff2',
   '/fonts/jetbrains-latin-ext.woff2',
   '/fonts/jetbrains-latin.woff2',
-  // Material Symbols
-  '/fonts/material-symbols.woff2'
+  // Icon sprite
+  '/icons/icons.svg'
 ];
 
 // Fetch asset, strip redirect metadata, and store standard Response in cache
