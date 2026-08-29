@@ -14,6 +14,7 @@
   const metricSelect = document.getElementById('goal-metric');
   const targetValueInput = document.getElementById('goal-target-value');
   const typeSelect = document.getElementById('goal-type');
+  const deadlineInput = document.getElementById('goal-deadline');
   const initBtn = document.getElementById('initialize-goal-btn');
 
   let templatesById = {};
@@ -49,10 +50,12 @@
       exerciseKey: exerciseWrap.style.display !== 'none' ? (exerciseInput.value || null) : null,
       targetField: metricSelect.value,
       targetValue,
-      type: typeSelect.value
+      type: typeSelect.value,
+      deadline: deadlineInput.value || null
     });
     targetValueInput.value = '';
     exerciseInput.value = '';
+    deadlineInput.value = '';
     MotsaJiki.toast('Target initialized.');
   });
 
@@ -62,6 +65,23 @@
     const metricLabel = metricField ? metricField.label : goal.targetField;
     const name = goal.exerciseKey ? goal.exerciseKey : (tpl ? tpl.name : 'Unknown');
     return `${goal.targetValue.toLocaleString()}${metricField && metricField.unit ? ' ' + metricField.unit : ''} ${metricLabel} — ${name}`;
+  }
+
+  // Builds the deadline status markup (countdown, pace, overdue/early tags) for a goal
+  function deadlineMarkup(goal, progress) {
+    const info = StorageController.goalDeadlineInfo(goal, progress);
+    if (!info) return '';
+
+    if (info.completedEarly) {
+      return `<div class="deadline-row deadline-early">Completed early! 🎉</div>`;
+    }
+    if (info.overdue) {
+      const daysPast = Math.abs(info.daysLeft);
+      return `<div class="deadline-row"><span class="tag tag-overdue">Overdue</span><span class="meta">${daysPast} day${daysPast === 1 ? '' : 's'} past deadline</span></div>`;
+    }
+    const dayLabel = info.daysLeft === 0 ? 'Due today' : `${info.daysLeft} day${info.daysLeft === 1 ? '' : 's'} left`;
+    const paceLabel = info.perDay ? ` · ${Math.ceil(info.perDay).toLocaleString()}/day needed` : '';
+    return `<div class="deadline-row"><span class="meta">${dayLabel}${paceLabel}</span></div>`;
   }
 
   // Renders target overview, priority display, and active/completed lists
@@ -106,6 +126,7 @@
           </div>
           <div class="progress-track lg"><div class="progress-fill" style="width:${pp.pct}%;"></div></div>
           <div class="goal-footer"><span>${pp.current.toLocaleString()} Current</span><span>${pp.remaining.toLocaleString()} Remaining</span></div>
+          ${deadlineMarkup(priority, pp)}
         </div>`;
 
       activeList.innerHTML = rest.length === 0 ? '' : rest.map(g => {
@@ -120,6 +141,7 @@
           <div class="goal-footer"><span>${p.remaining.toLocaleString()} left</span>
             <button class="log-delete" data-goal-id="${escapeHtml(g.id)}" aria-label="Delete goal"><svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-close"></use></svg></button>
           </div>
+          ${deadlineMarkup(g, p)}
         </div>`;
       }).join('');
 
@@ -131,7 +153,9 @@
       ? '<div class="empty-state">Nothing completed yet.</div>'
       : completed.map(g => {
           const tpl = templatesById[g.templateId];
-          return `<div class="goal-completed"><span class="name">${escapeHtml(goalTitle(g, tpl))}</span><svg class="icon" style="color:var(--on-surface-variant);"><use href="/icons/icons.svg#icon-check_circle"></use></svg></div>`;
+          const info = StorageController.goalDeadlineInfo(g, StorageController.goalProgress(g));
+          const earlyTag = info && info.completedEarly ? '<span class="tag tag-early">Early</span>' : '';
+          return `<div class="goal-completed"><span class="name">${escapeHtml(goalTitle(g, tpl))}</span><span style="display:flex; align-items:center; gap:8px;">${earlyTag}<svg class="icon" style="color:var(--on-surface-variant);"><use href="/icons/icons.svg#icon-check_circle"></use></svg></span></div>`;
         }).join('');
   }
 
