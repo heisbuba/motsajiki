@@ -437,10 +437,13 @@
       }
     }
 
-    setInterval(() => StorageController.flushPending().then(refreshSyncStatusUI), 30000);
+    setInterval(() => StorageController.pullAndMerge().then(refreshSyncStatusUI), 30000);
     window.addEventListener('online', () => StorageController.pullAndMerge().then(refreshSyncStatusUI));
-    window.addEventListener('focus', () => StorageController.flushPending().then(refreshSyncStatusUI));
+    window.addEventListener('focus', () => StorageController.pullAndMerge().then(refreshSyncStatusUI));
   });
+
+  // Personal Records display cap for the export canvas 
+  const PR_EXPORT_CAP = 12;
 
   // Render performance summary canvas and trigger PNG download
   async function exportPerformanceImage() {
@@ -471,12 +474,15 @@
     const onSurface = computed.getPropertyValue('--on-surface').trim() || '#f8fafc';
     const onSurfaceVariant = computed.getPropertyValue('--on-surface-variant').trim() || '#94a3b8';
 
-    const prs = StorageController.personalRecords();
+    const allPrs = StorageController.personalRecords();
+    const prs = allPrs.slice(0, PR_EXPORT_CAP);
+    const hiddenPrCount = allPrs.length - prs.length;
     const status = StorageController.milestoneStatus();
     const unlocked = status.badges.filter(b => b.unlocked);
 
     let contentBottom = 400;
     if (prs.length > 0) contentBottom += 50 + prs.length * 55;
+    if (hiddenPrCount > 0) contentBottom += 36;
     if (unlocked.length > 0) contentBottom += 20 + 50 + unlocked.length * 40;
 
     const H = Math.max(700, contentBottom + 140);
@@ -565,6 +571,14 @@
 
         y += 55;
       });
+
+      if (hiddenPrCount > 0) {
+        ctx.fillStyle = onSurfaceVariant;
+        ctx.font = '16px "Inter", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`+ ${hiddenPrCount} more record${hiddenPrCount === 1 ? '' : 's'}`, 80, y);
+        y += 36;
+      }
     }
 
     // Badges Section

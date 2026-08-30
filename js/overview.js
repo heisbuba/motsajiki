@@ -21,6 +21,9 @@
   const HISTORY_PAGE_SIZE = 12;
   let historyPage = 0;
 
+  // Personal Records display cap 
+  const PR_DISPLAY_CAP = 12;
+
   // Performance chart range state
   let chartRange = '7d';
   const CHART_RANGE_LABELS = {
@@ -85,8 +88,6 @@
       const isPeak = d.volume === max && d.volume > 0;
       return `<div class="bar-col"><div class="bar-fill${isPeak ? ' peak' : ''}" style="height:${pct}%;"></div></div>`;
     }).join('');
-    // Decimate labels on denser ranges so text doesn't crowd — always keep the
-    // most recent bucket's label visible as a right-edge anchor.
     const LABEL_STRIDE = { '7d': 1, '1m': 5, '3m': 2, '1y': 1 };
     const stride = LABEL_STRIDE[chartRange] || 1;
     barLabels.innerHTML = buckets.map((d, i) => {
@@ -95,11 +96,13 @@
     }).join('');
 
     // Render personal records
-    const prs = StorageController.personalRecords();
+    const allPrs = StorageController.personalRecords();
+    const prs = allPrs.slice(0, PR_DISPLAY_CAP);
+    const hiddenCount = allPrs.length - prs.length;
     if (prs.length === 0) {
       prList.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">No personal records yet.</div>';
     } else {
-      prList.innerHTML = prs.map(pr => {
+      const cards = prs.map(pr => {
         const title = `${pr.exercise ? pr.exercise : pr.templateName} ${pr.label}`;
         return `
         <div class="card pr-card">
@@ -107,6 +110,10 @@
           <span class="pr-value">${pr.value.toLocaleString()}<span style="font-size:14px; color:var(--on-surface-variant); font-family:var(--font-mono); margin-left:4px;">${escapeHtml(pr.unit || '')}</span></span>
         </div>`;
       }).join('');
+      const moreNote = hiddenCount > 0
+        ? `<div class="empty-state" style="grid-column:1/-1; padding:12px;">+ ${hiddenCount} more record${hiddenCount === 1 ? '' : 's'}</div>`
+        : '';
+      prList.innerHTML = cards + moreNote;
     }
   }
 
