@@ -124,6 +124,7 @@
   ]);
 
   let currentPageScriptEls = [];
+  let currentPath = location.pathname;
 
   function resetDataListeners() {
     dataListeners.length = 0;
@@ -174,8 +175,7 @@
       return;
     }
 
-    // Same page, just a different (or absent) hash — no fetch needed.
-    if (target.pathname === location.pathname) {
+    if (target.pathname === currentPath) {
       if (push) history.pushState({ url: target.href }, '', target.href);
       scrollToTarget(target.hash);
       return;
@@ -202,6 +202,7 @@
 
     document.title = newDoc.title || document.title;
     oldMain.replaceWith(newMain);
+    currentPath = target.pathname;
 
     if (push) history.pushState({ url: target.href }, '', target.href);
 
