@@ -328,26 +328,31 @@
   }
 
   function personalRecords() {
-    const byKey = new Map();
-    activeLogs().forEach(log => {
-      const tpl = activeTemplates().find(t => t.id === log.templateId);
-      if (!tpl) return;
-      const exerciseTag = log.metrics.exercise ? `:${log.metrics.exercise}` : '';
-      tpl.fields.filter(f => f.type === 'number').forEach(f => {
-        const val = Number(log.metrics[f.key]);
-        if (!(val > 0)) return;
-        const key = `${tpl.id}${exerciseTag}:${f.key}`;
-        const existing = byKey.get(key);
-        if (!existing || val > existing.value) {
-          byKey.set(key, {
-            key, value: val, unit: f.unit, label: f.label,
-            templateName: tpl.name, exercise: log.metrics.exercise || null
-          });
-        }
-      });
+  const byKey = new Map();
+  activeLogs().forEach(log => {
+    const tpl = activeTemplates().find(t => t.id === log.templateId);
+    if (!tpl) return;
+    const exerciseTag = log.metrics.exercise ? `:${log.metrics.exercise}` : '';
+    
+    tpl.fields.filter(f => f.type === 'number').forEach(f => {
+      const val = Number(log.metrics[f.key]);
+      if (!(val > 0)) return;
+      
+      const key = `${tpl.id}${exerciseTag}:${f.key}`;
+      const existing = byKey.get(key);
+      
+      if (!existing) {
+        byKey.set(key, {
+          key, value: val, unit: f.unit, label: f.label,
+          templateName: tpl.name, exercise: log.metrics.exercise || null
+        });
+      } else {
+        existing.value += val;
+      }
     });
-    return Array.from(byKey.values()).sort((a, b) => b.value - a.value);
-  }
+  });
+  return Array.from(byKey.values()).sort((a, b) => b.value - a.value);
+}
 
   function goalProgress(goal) {
     const relevant = activeLogs().filter(l => {
