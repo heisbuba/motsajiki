@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /functions/
+
+Sitemap: https://motsajiki.pages.dev/sitemap.xml

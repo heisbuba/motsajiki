@@ -3,13 +3,84 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Motsa Jiki — Help &amp; Info</title>
+<title>Help & FAQ — Motsa Jiki</title>
+<meta name="description" content="How Motsa Jiki works: offline logging, Local Folder and Google Drive sync, exporting your data, and how to disconnect or clear it.">
+<link rel="canonical" href="https://motsajiki.pages.dev/help">
+<meta name="robots" content="index, follow">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Motsa Jiki">
+<meta property="og:title" content="Help & FAQ — Motsa Jiki">
+<meta property="og:description" content="How Motsa Jiki works: offline logging, Local Folder and Google Drive sync, exporting your data, and how to disconnect or clear it.">
+<meta property="og:url" content="https://motsajiki.pages.dev/help">
+<meta property="og:image" content="https://motsajiki.pages.dev/icons/og-image.png">
+<meta property="og:locale" content="en_US">
+<!-- X/Twitter card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@motsajiki">
+<meta name="twitter:title" content="Help & FAQ — Motsa Jiki">
+<meta name="twitter:description" content="How Motsa Jiki works: offline logging, sync, data export, and clearing your data.">
+<meta name="twitter:image" content="https://motsajiki.pages.dev/icons/og-image.png">
+<!-- Favicons -->
+<link rel="icon" href="/icons/logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+<link rel="icon" href="/icons/icon-48x48.png" sizes="48x48" type="image/png">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<!-- Preload & styles -->
 <link rel="preload" href="/fonts/archivo-narrow-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/fonts/fonts.css" />
 <link rel="stylesheet" href="styles.css" />
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0A0A0A">
-<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+<!-- Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I need an account to use Motsa Jiki?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Every log, target, and badge is stored right on your device — there's no sign-up and no login."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do Local Folder and Google Drive sync work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both are optional and off by default. Local Folder saves a copy of your data to a folder you choose on this device. Google Drive saves a single workout.json file to your My Drive — it never reads or touches any of your other Drive files."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Motsa Jiki work offline?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. It's built as an installable, offline-first app — logging workouts, tracking goals, and viewing badges all work with no connection. A network is only needed the moment you choose to sync to cloud."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I export my data?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use the export option on the Data tab to save your logs as a CSV file, or generate a shareable PNG summary of your stats."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I disconnect sync or remove my data?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tap the sync icon in the header to disconnect Local Folder or Google Drive at any time. Clearing this site's data from your browser removes everything Motsa Jiki has stored locally."
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -65,8 +136,8 @@
         Terms of Use
         <svg class="icon"><use href="/icons/icons.svg#icon-chevron_right"></use></svg>
       </a>
-      <a href="https://github.com/heisbuba/motsajiki/issues" target="_blank" rel="noopener">
-        Report an issue on GitHub
+      <a href="https://github.com/heisbuba/motsajiki" target="_blank" rel="noopener">
+        View Source Code on GitHub
         <svg class="icon"><use href="/icons/icons.svg#icon-open_in_new"></use></svg>
       </a>
     </div>
