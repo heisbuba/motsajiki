@@ -445,7 +445,7 @@
 
   // Personal Records display cap for the export canvas 
   const PR_EXPORT_CAP = 12;
-
+  
   // Render performance summary canvas and trigger PNG download
   async function exportPerformanceImage() {
     try {
@@ -476,8 +476,15 @@
     const onSurfaceVariant = computed.getPropertyValue('--on-surface-variant').trim() || '#94a3b8';
 
     const allPrs = StorageController.personalRecords();
-    const prs = allPrs.slice(0, PR_EXPORT_CAP);
-    const hiddenPrCount = allPrs.length - prs.length;
+    const seenExercise = new Set();
+    const dedupedPrs = allPrs.filter(pr => {
+      const exerciseKey = `${pr.templateName}:${pr.exercise || ''}`;
+      if (seenExercise.has(exerciseKey)) return false;
+      seenExercise.add(exerciseKey);
+      return true;
+    });
+    const prs = dedupedPrs.slice(0, PR_EXPORT_CAP);
+    const hiddenPrCount = dedupedPrs.length - prs.length;
     const status = StorageController.milestoneStatus();
     const unlocked = status.badges.filter(b => b.unlocked);
 
