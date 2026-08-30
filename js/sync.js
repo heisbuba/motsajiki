@@ -71,7 +71,7 @@
         if (driveDoc) merged = mergeDocs(merged, migrate(driveDoc));
       } catch (e) { console.warn('[sync] Drive load failed', e); }
     }
-    state = merged;
+    state = mergeDocs(state, merged);
     await MotsaJikiDB.setDoc(state);
     await pushAll();
     emit();
@@ -341,13 +341,13 @@
       const key = `${tpl.id}${exerciseTag}:${f.key}`;
       const existing = byKey.get(key);
       
-      if (!existing) {
+            if (!existing) {
         byKey.set(key, {
           key, value: val, unit: f.unit, label: f.label,
           templateName: tpl.name, exercise: log.metrics.exercise || null
         });
       } else {
-        existing.value += val;
+        existing.value = Math.max(existing.value, val);
       }
     });
   });
