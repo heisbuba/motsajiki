@@ -21,8 +21,8 @@
   const HISTORY_PAGE_SIZE = 12;
   let historyPage = 0;
 
-  // Personal Records display cap 
-  const PR_DISPLAY_CAP = 12;
+  const PR_MAX_ROWS_PER_CARD = 4;  
+  const PR_MAX_TOTAL_ROWS = 24;    
 
   // Performance chart range state
   let chartRange = '7d';
@@ -95,23 +95,37 @@
       return `<span>${show ? escapeHtml(d.label) : ''}</span>`;
     }).join('');
 
-    // Render personal records
-    const allPrs = StorageController.personalRecords();
-    const prs = allPrs.slice(0, PR_DISPLAY_CAP);
-    const hiddenCount = allPrs.length - prs.length;
-    if (prs.length === 0) {
+    const allGroups = StorageController.personalRecordsGrouped();
+    let rowsUsed = 0;
+    const shownGroups = [];
+    let hiddenTaskCount = 0;
+    for (const g of allGroups) {
+      if (rowsUsed >= PR_MAX_TOTAL_ROWS) { hiddenTaskCount++; continue; }
+      const perCardCap = Math.min(PR_MAX_ROWS_PER_CARD, PR_MAX_TOTAL_ROWS - rowsUsed);
+      const shownMetrics = g.metrics.slice(0, perCardCap);
+      shownGroups.push({ title: g.title, metrics: shownMetrics, hiddenMetricCount: g.metrics.length - shownMetrics.length });
+      rowsUsed += shownMetrics.length;
+    }
+
+    if (shownGroups.length === 0) {
       prList.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">No personal records yet.</div>';
     } else {
-      const cards = prs.map(pr => {
-        const title = `${pr.exercise ? pr.exercise : pr.templateName} ${pr.label}`;
+      const cards = shownGroups.map(g => {
+        const rows = g.metrics.map(m => `
+          <div class="pr-metric-row">
+            <span class="pr-metric-label">${escapeHtml(m.label)}</span>
+            <span class="pr-metric-value">${m.value.toLocaleString()}<span class="pr-metric-unit">${escapeHtml(m.unit || '')}</span></span>
+          </div>`).join('');
+        const moreInCard = g.hiddenMetricCount > 0
+          ? `<div class="pr-metric-more">+ ${g.hiddenMetricCount} more</div>` : '';
         return `
         <div class="card pr-card">
-          <span class="pr-title"><svg class="icon" style="width:16px;height:16px;"><use href="/icons/icons.svg#icon-emoji_events"></use></svg>${escapeHtml(title)}</span>
-          <span class="pr-value">${pr.value.toLocaleString()}<span style="font-size:14px; color:var(--on-surface-variant); font-family:var(--font-mono); margin-left:4px;">${escapeHtml(pr.unit || '')}</span></span>
+          <span class="pr-title"><svg class="icon" style="width:16px;height:16px;"><use href="/icons/icons.svg#icon-emoji_events"></use></svg>${escapeHtml(g.title)}</span>
+          <div class="pr-metrics">${rows}${moreInCard}</div>
         </div>`;
       }).join('');
-      const moreNote = hiddenCount > 0
-        ? `<div class="empty-state" style="grid-column:1/-1; padding:12px;">+ ${hiddenCount} more record${hiddenCount === 1 ? '' : 's'}</div>`
+      const moreNote = hiddenTaskCount > 0
+        ? `<div class="empty-state" style="grid-column:1/-1; padding:12px;">+ ${hiddenTaskCount} more task${hiddenTaskCount === 1 ? '' : 's'}</div>`
         : '';
       prList.innerHTML = cards + moreNote;
     }

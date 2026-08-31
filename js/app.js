@@ -443,9 +443,8 @@
     window.addEventListener('focus', () => StorageController.pullAndMerge().then(refreshSyncStatusUI));
   });
 
-  // Personal Records display cap for the export canvas 
-  const PR_EXPORT_CAP = 12;
   
+  const PR_EXPORT_MAX_TASKS = 8;
   // Render performance summary canvas and trigger PNG download
   async function exportPerformanceImage() {
     try {
@@ -475,21 +474,24 @@
     const onSurface = computed.getPropertyValue('--on-surface').trim() || '#f8fafc';
     const onSurfaceVariant = computed.getPropertyValue('--on-surface-variant').trim() || '#94a3b8';
 
-    const allPrs = StorageController.personalRecords();
-    const seenExercise = new Set();
-    const dedupedPrs = allPrs.filter(pr => {
-      const exerciseKey = `${pr.templateName}:${pr.exercise || ''}`;
-      if (seenExercise.has(exerciseKey)) return false;
-      seenExercise.add(exerciseKey);
-      return true;
-    });
-    const prs = dedupedPrs.slice(0, PR_EXPORT_CAP);
-    const hiddenPrCount = dedupedPrs.length - prs.length;
+    // Personal records, grouped by task, headline metric only.
+    const allGroups = StorageController.personalRecordsGrouped();
+    const headline = allGroups.map(g => ({
+      title: g.title,
+      best: g.metrics[0],           // metrics are already sorted best-first
+      extraCount: g.metrics.length - 1
+    }));
+    const groups = headline.slice(0, PR_EXPORT_MAX_TASKS);
+    const hiddenPrCount = headline.length - groups.length;
+
     const status = StorageController.milestoneStatus();
     const unlocked = status.badges.filter(b => b.unlocked);
 
     let contentBottom = 400;
-    if (prs.length > 0) contentBottom += 50 + prs.length * 55;
+    if (groups.length > 0) {
+      contentBottom += 50; // section header
+      groups.forEach(g => { contentBottom += 55 + (g.extraCount > 0 ? 26 : 0); });
+    }
     if (hiddenPrCount > 0) contentBottom += 36;
     if (unlocked.length > 0) contentBottom += 20 + 50 + unlocked.length * 40;
 
@@ -529,7 +531,7 @@
 
     stats.forEach((s, idx) => {
       const cx = 60 + (colWidth * idx) + (colWidth / 2);
-      
+
       // Stat Box Background
       ctx.fillStyle = level1;
       ctx.beginPath();
@@ -553,12 +555,12 @@
     let y = 400;
 
     // Personal Records Section
-    if (prs.length > 0) {
+    if (groups.length > 0) {
       ctx.fillStyle = primary;
       ctx.font = 'bold 24px "Archivo Narrow", sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText('PERSONAL RECORDS', 80, y);
-      
+
       ctx.strokeStyle = border;
       ctx.beginPath();
       ctx.moveTo(80, y + 12);
@@ -566,16 +568,24 @@
       ctx.stroke();
 
       y += 50;
-      prs.forEach(pr => {
+      groups.forEach(g => {
         ctx.fillStyle = onSurface;
         ctx.font = '22px "Inter", sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText(`${pr.exercise ? pr.exercise : pr.templateName} ${pr.label}`, 80, y);
+        ctx.fillText(g.title, 80, y);
 
         ctx.fillStyle = primary;
         ctx.font = 'bold 28px "Archivo Narrow", sans-serif';
         ctx.textAlign = 'right';
-        ctx.fillText(`${pr.value.toLocaleString()} ${pr.unit || ''}`, W - 80, y);
+        ctx.fillText(`${g.best.value.toLocaleString()} ${g.best.unit || ''}`, W - 80, y);
+
+        if (g.extraCount > 0) {
+          y += 26;
+          ctx.fillStyle = onSurfaceVariant;
+          ctx.font = '14px "JetBrains Mono", monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText(`+ ${g.extraCount} more metric${g.extraCount === 1 ? '' : 's'} tracked`, 80, y);
+        }
 
         y += 55;
       });
@@ -584,7 +594,7 @@
         ctx.fillStyle = onSurfaceVariant;
         ctx.font = '16px "Inter", sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText(`+ ${hiddenPrCount} more record${hiddenPrCount === 1 ? '' : 's'}`, 80, y);
+        ctx.fillText(`+ ${hiddenPrCount} more task${hiddenPrCount === 1 ? '' : 's'}`, 80, y);
         y += 36;
       }
     }

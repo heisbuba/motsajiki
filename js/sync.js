@@ -71,6 +71,7 @@
         if (driveDoc) merged = mergeDocs(merged, migrate(driveDoc));
       } catch (e) { console.warn('[sync] Drive load failed', e); }
     }
+    // Re-merge against the CURRENT state
     state = mergeDocs(state, merged);
     await MotsaJikiDB.setDoc(state);
     await pushAll();
@@ -277,7 +278,7 @@
     if (m.count) return Number(m.count);
     if (m.distance) return Number(m.distance);
     if (m.duration) return Number(m.duration);
-    
+
     const tpl = activeTemplates().find(t => t.id === log.templateId);
     if (tpl && tpl.fields) {
       return tpl.fields
@@ -328,31 +329,44 @@
   }
 
   function personalRecords() {
-  const byKey = new Map();
-  activeLogs().forEach(log => {
-    const tpl = activeTemplates().find(t => t.id === log.templateId);
-    if (!tpl) return;
-    const exerciseTag = log.metrics.exercise ? `:${log.metrics.exercise}` : '';
-    
-    tpl.fields.filter(f => f.type === 'number').forEach(f => {
-      const val = Number(log.metrics[f.key]);
-      if (!(val > 0)) return;
-      
-      const key = `${tpl.id}${exerciseTag}:${f.key}`;
-      const existing = byKey.get(key);
-      
-            if (!existing) {
-        byKey.set(key, {
-          key, value: val, unit: f.unit, label: f.label,
-          templateName: tpl.name, exercise: log.metrics.exercise || null
-        });
-      } else {
-        existing.value = Math.max(existing.value, val);
-      }
+    const byKey = new Map();
+    activeLogs().forEach(log => {
+      const tpl = activeTemplates().find(t => t.id === log.templateId);
+      if (!tpl) return;
+      const exerciseTag = log.metrics.exercise ? `:${log.metrics.exercise}` : '';
+
+      tpl.fields.filter(f => f.type === 'number').forEach(f => {
+        const val = Number(log.metrics[f.key]);
+        if (!(val > 0)) return;
+
+        const key = `${tpl.id}${exerciseTag}:${f.key}`;
+        const existing = byKey.get(key);
+
+        if (!existing) {
+          byKey.set(key, {
+            key, value: val, unit: f.unit, label: f.label,
+            templateName: tpl.name, exercise: log.metrics.exercise || null
+          });
+        } else {
+          existing.value = Math.max(existing.value, val);
+        }
+      });
     });
-  });
-  return Array.from(byKey.values()).sort((a, b) => b.value - a.value);
-}
+    return Array.from(byKey.values()).sort((a, b) => b.value - a.value);
+  }
+
+  // Groups flat PR records by task/exercise
+  function personalRecordsGrouped() {
+    const groups = new Map();
+    personalRecords().forEach(pr => {
+      const groupKey = `${pr.templateName}:${pr.exercise || ''}`;
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, { title: pr.exercise || pr.templateName, metrics: [] });
+      }
+      groups.get(groupKey).metrics.push({ label: pr.label, value: pr.value, unit: pr.unit });
+    });
+    return Array.from(groups.values());
+  }
 
   function goalProgress(goal) {
     const relevant = activeLogs().filter(l => {
@@ -370,9 +384,7 @@
     return { current, pct, remaining: Math.max(0, goal.targetValue - current) };
   }
 
-  // Derives deadline pacing/overdue info for a goal. Returns null if no deadline set.
-  // "overdue" is computed live from the current date, never persisted, so it can't
-  // go stale or need conflict resolution across synced devices.
+  // Derives deadline pacing/overdue info for a goal.
   function goalDeadlineInfo(goal, progress) {
     if (!goal.deadline) return null;
     const now = startOfDay(new Date());
@@ -380,7 +392,6 @@
     const daysLeft = Math.round((due - now) / 86400000);
     const overdue = !goal.completed && daysLeft < 0;
     const completedEarly = !!goal.completed && daysLeft >= 0;
-    // Per-day pace only makes sense for cumulative goals with time still remaining.
     const perDay = (!goal.completed && goal.type !== 'max' && daysLeft > 0)
       ? progress.remaining / daysLeft
       : null;
@@ -409,6 +420,7 @@
     getState: () => state,
     activeLogs, activeTemplates, activeGoals,
     currentStreak, totalVolume, last7DaysVolume, volumeForRange, personalRecords,
+    personalRecordsGrouped,
     goalProgress, goalDeadlineInfo, milestoneStatus, logVolume
   };
 })(window);

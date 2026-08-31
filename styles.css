@@ -216,6 +216,13 @@ select.control:focus, input.control:focus { outline: none; border-color: var(--b
 .pr-card { display: flex; flex-direction: column; gap: 8px; }
 .pr-title { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; color: var(--on-surface-variant); letter-spacing: 0.05em; }
 .pr-value { font-family: var(--font-display); font-weight: 700; font-size: 28px; }
+.pr-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+.pr-metrics { display: flex; flex-direction: column; gap: 4px; }
+.pr-metric-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.pr-metric-label { font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant); text-transform: uppercase; }
+.pr-metric-value { font-family: var(--font-display); font-weight: 700; font-size: 20px; white-space: nowrap; }
+.pr-metric-unit { font-size: 12px; color: var(--on-surface-variant); font-family: var(--font-mono); margin-left: 4px; }
+.pr-metric-more { font-family: var(--font-mono); font-size: 10px; color: var(--on-surface-variant); text-transform: uppercase; margin-top: 2px; }
 
 /* Activity distribution chart bar elements */
 .bars { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding-top: 10px; }
