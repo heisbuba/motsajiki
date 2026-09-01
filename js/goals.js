@@ -67,7 +67,7 @@
     return `${goal.targetValue.toLocaleString()}${metricField && metricField.unit ? ' ' + metricField.unit : ''} ${metricLabel} — ${name}`;
   }
 
-  // Builds the deadline status markup (countdown, pace, overdue/early tags) for a goal
+  // Builds the deadline status markup
   function deadlineMarkup(goal, progress) {
     const info = StorageController.goalDeadlineInfo(goal, progress);
     if (!info) return '';
@@ -159,11 +159,12 @@
         }).join('');
   }
 
-  // Evaluates goal completions before executing main render pass
+  // Evaluates goal completions before executing main render pass.
   MotsaJiki.onData(state => {
-    StorageController.activeGoals()
+    const toComplete = StorageController.activeGoals()
       .filter(g => !g.completed && StorageController.goalProgress(g).pct >= 100)
-      .forEach(g => StorageController.completeGoal(g.id));
+      .map(g => g.id);
+    if (toComplete.length > 0) StorageController.completeGoals(toComplete);
     render(state);
   });
 })();

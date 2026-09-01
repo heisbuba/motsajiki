@@ -78,52 +78,6 @@
     return page;
   }
 
-  // Inject top header and bottom navigation elements into DOM
-  function injectChrome() {
-    if (!document.querySelector('header.topbar')) {
-      const page = currentPageName();
-      const syncHref = (page === 'index.html') ? '#sync-controls' : '/#sync-controls';
-      const header = document.createElement('header');
-      header.className = 'topbar';
-      header.innerHTML =
-        '<div class="brand">' +
-          '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-fitness_center\"></use></svg>' +
-          ' MOTSA JIKI' +
-        '</div>' +
-        '<div style="display: flex; gap: 8px;">' +
-          '<a class="icon-btn" href="/help" aria-label="Help and Legal Information">' +
-            '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-help_outline\"></use></svg>' +
-           '</a>' +
-          '<button class="icon-btn" id="theme-toggle-btn" aria-label="Toggle Theme">' +
-            '<svg class=\"icon\" id=\"theme-icon\"><use href=\"/icons/icons.svg#icon-bedtime\"></use></svg>' +
-          '</button>' +
-          '<a class="icon-btn" href="' + syncHref + '" aria-label="Sync status">' +
-            '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-cloud_sync\"></use></svg>' +
-          '</a>' +
-        '</div>';
-      document.body.insertBefore(header, document.body.firstChild);
-    }
-
-    if (!document.querySelector('nav.bottom-nav')) {
-      const nav = document.createElement('nav');
-      nav.className = 'bottom-nav';
-      nav.innerHTML =
-        '<a class="nav-item" data-nav-link="index.html" href="/">' +
-          '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-event_note\"></use></svg>Log' +
-        '</a>' +
-        '<a class="nav-item" data-nav-link="overview.html" href="/overview">' +
-          '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-monitoring\"></use></svg>Data' +
-        '</a>' +
-        '<a class="nav-item" data-nav-link="goals.html" href="/goals">' +
-          '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-emoji_events\"></use></svg>Goals' +
-        '</a>' +
-        '<a class="nav-item" data-nav-link="milestone.html" href="/milestone">' +
-          '<svg class=\"icon\"><use href=\"/icons/icons.svg#icon-military_tech\"></use></svg>Badges' +
-        '</a>';
-      document.body.appendChild(nav);
-    }
-  }
-
   // SPA Router
   const SHARED_SCRIPTS = new Set([
     'js/schema.js', 'js/db.js', 'js/filesystem.js',
@@ -418,7 +372,6 @@
 
   // Initialize application services and lifecycle handlers on load
   document.addEventListener('DOMContentLoaded', async () => {
-    injectChrome();
     wireThemeControls();
     hydratePage();
 
@@ -485,7 +438,7 @@
     const allGroups = StorageController.personalRecordsGrouped();
     const headline = allGroups.map(g => ({
       title: g.title,
-      best: g.metrics[0],           // metrics are already sorted best-first
+      best: g.metrics[0],         
       extraCount: g.metrics.length - 1
     }));
     const groups = headline.slice(0, PR_EXPORT_MAX_TASKS);

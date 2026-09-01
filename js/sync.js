@@ -78,26 +78,32 @@
     emit();
   }
 
+  // Saves to the local IndexedDB cache then drive
   async function pushAll() {
     await MotsaJikiDB.setDoc(state);
+
+    const jobs = [];
     if (FileSystemEngine.isConnected()) {
-      try {
-        await FileSystemEngine.save(state);
-        await MotsaJikiDB.setMeta('pendingFs', false);
-      } catch (e) {
-        console.warn('[sync] FS save failed, will retry', e);
-        await MotsaJikiDB.setMeta('pendingFs', true);
-      }
+      jobs.push(
+        FileSystemEngine.save(state)
+          .then(() => MotsaJikiDB.setMeta('pendingFs', false))
+          .catch(e => {
+            console.warn('[sync] FS save failed, will retry', e);
+            return MotsaJikiDB.setMeta('pendingFs', true);
+          })
+      );
     }
     if (GDriveEngine.isConnected()) {
-      try {
-        await GDriveEngine.save(state);
-        await MotsaJikiDB.setMeta('pendingDrive', false);
-      } catch (e) {
-        console.warn('[sync] Drive save failed, will retry', e);
-        await MotsaJikiDB.setMeta('pendingDrive', true);
-      }
+      jobs.push(
+        GDriveEngine.save(state)
+          .then(() => MotsaJikiDB.setMeta('pendingDrive', false))
+          .catch(e => {
+            console.warn('[sync] Drive save failed, will retry', e);
+            return MotsaJikiDB.setMeta('pendingDrive', true);
+          })
+      );
     }
+    await Promise.all(jobs);
   }
 
   async function flushPending() {
@@ -106,14 +112,23 @@
       MotsaJikiDB.getMeta('pendingFs').catch(() => false),
       MotsaJikiDB.getMeta('pendingDrive').catch(() => false)
     ]);
+
+    const jobs = [];
     if (pendingFs && FileSystemEngine.isConnected()) {
-      try { await FileSystemEngine.save(state); await MotsaJikiDB.setMeta('pendingFs', false); }
-      catch (e) { console.warn('[sync] FS retry still failing', e); }
+      jobs.push(
+        FileSystemEngine.save(state)
+          .then(() => MotsaJikiDB.setMeta('pendingFs', false))
+          .catch(e => console.warn('[sync] FS retry still failing', e))
+      );
     }
     if (pendingDrive && GDriveEngine.isConnected()) {
-      try { await GDriveEngine.save(state); await MotsaJikiDB.setMeta('pendingDrive', false); }
-      catch (e) { console.warn('[sync] Drive retry still failing', e); }
+      jobs.push(
+        GDriveEngine.save(state)
+          .then(() => MotsaJikiDB.setMeta('pendingDrive', false))
+          .catch(e => console.warn('[sync] Drive retry still failing', e))
+      );
     }
+    await Promise.all(jobs);
   }
 
   async function pendingStatus() {
@@ -125,7 +140,7 @@
   }
 
   function mutate(fn) {
-    const draft = JSON.parse(JSON.stringify(state));
+    const draft = structuredClone(state);
     fn(draft);
     draft.lastUpdated = nowIso();
     state = draft;
@@ -191,11 +206,18 @@
     });
   }
 
-  function completeGoal(goalId) {
-    mutate(draft => {
-      const g = draft.goals.find(x => x.id === goalId);
-      if (g) { g.completed = true; g.updatedAt = nowIso(); }
+  function completeGoals(goalIds) {
+    if (!goalIds || goalIds.length === 0) return Promise.resolve();
+    const idSet = new Set(goalIds);
+    return mutate(draft => {
+      draft.goals.forEach(g => {
+        if (idSet.has(g.id)) { g.completed = true; g.updatedAt = nowIso(); }
+      });
     });
+  }
+
+  function completeGoal(goalId) {
+    return completeGoals([goalId]);
   }
 
   function deleteGoal(goalId) {
@@ -329,9 +351,11 @@
   }
 
   function personalRecords() {
+    // Look templates up by id via a Map built once
+    const templatesById = new Map(activeTemplates().map(t => [t.id, t]));
     const byKey = new Map();
     activeLogs().forEach(log => {
-      const tpl = activeTemplates().find(t => t.id === log.templateId);
+      const tpl = templatesById.get(log.templateId);
       if (!tpl) return;
       const exerciseTag = log.metrics.exercise ? `:${log.metrics.exercise}` : '';
 
@@ -416,7 +440,7 @@
   global.StorageController = {
     subscribe, init, pullAndMerge, mutate, flushPending, pendingStatus,
     addLog, updateLog, deleteLog, addTemplate, updateTemplate, deleteTemplate,
-    addGoal, completeGoal, deleteGoal,
+    addGoal, completeGoal, completeGoals, deleteGoal,
     getState: () => state,
     activeLogs, activeTemplates, activeGoals,
     currentStreak, totalVolume, last7DaysVolume, volumeForRange, personalRecords,

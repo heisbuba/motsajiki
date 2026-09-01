@@ -1,5 +1,5 @@
 // Service worker cache version and static asset manifest
-const CACHE_NAME = 'motsa-jiki-v1.6.0';
+const CACHE_NAME = 'motsa-jiki-v1.7.0';
 const ASSETS = [
   '/',
   '/overview',
@@ -27,8 +27,13 @@ const ASSETS = [
   '/fonts/inter-latin.woff2',
   // JetBrains Mono
   '/fonts/jetbrains-latin.woff2',
-  // Icon sprite
-  '/icons/icons.svg'
+  // Icon sprite (inline nav/header icons)
+  '/icons/icons.svg',
+  // App icons (manifest + apple-touch-icon + favicon fallback)
+  '/icons/icon-48x48.png',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
+  '/icons/logo.svg'
 ];
 
 // Fetch asset, strip redirect metadata, and store standard Response in cache
