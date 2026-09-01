@@ -205,9 +205,11 @@
     MotsaJiki.renderTemplateFields(tpl, fieldsContainer);
   });
 
+  if (startWorkoutBtn) {
   startWorkoutBtn.addEventListener('click', () => {
     document.getElementById('template-selector').closest('section').scrollIntoView({ behavior: 'smooth' });
   });
+  }
 
   // Returns display icon for a task template
   function iconForTemplate(tpl) {
