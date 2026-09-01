@@ -1,46 +1,4 @@
 :root,
-html[data-theme="night"],
-html[data-theme="dark"] {
-  --bg: #000000;
-  --level-0: #000000;
-  --level-1: #0f0f11;
-  --level-2: #18181b;
-  --surface-container-high: #27272a;
-  --surface-container-lowest: #09090b;
-  --border: #27272a;
-  --border-strong: #3f3f46;
-  
-  --on-surface: #f4f4f5;
-  --on-surface-variant: #a1a1aa;
-  --white: #ffffff;
-
-  --primary: #ffffff;      
-  --primary-dim: #e4e4e7;
-  --primary-glow: transparent;
-  --on-primary: #09090b;
-  --secondary: #f43f5e;  
-  --on-secondary: #ffffff;
-  --error: #f87171;
-
-  --radius-sm: 4px;
-  --radius: 6px;
-  --radius-lg: 10px;
-  --radius-full: 9999px;
-  --touch-min: 44px;
-  --gutter: 16px;
-  --stack-gap: 16px;
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-glow: none;
-  --transition: all 0.15s ease-in-out;
-
-  --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-/* Light Mode (standard) */
 html[data-theme="light"] {
   --bg: #ffffff;
   --level-0: #ffffff;
@@ -63,8 +21,49 @@ html[data-theme="light"] {
   --on-secondary: #ffffff;
   --error: #dc2626;
 
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --radius-full: 9999px;
+  --touch-min: 44px;
+  --gutter: 16px;
+  --stack-gap: 16px;
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-glow: none;
+  --transition: all 0.15s ease-in-out;
+
+  --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Dark Mode (slate) */
+html[data-theme="dark"] {
+  --bg: #0f172a;
+  --level-0: #0f172a;
+  --level-1: #1e293b;
+  --level-2: #334155;
+  --surface-container-high: #475569;
+  --surface-container-lowest: #020617;
+  --border: #334155;
+  --border-strong: #475569;
+
+  --on-surface: #f8fafc;
+  --on-surface-variant: #94a3b8;
+  --white: #ffffff;
+
+  --primary: #818cf8;
+  --primary-dim: #6366f1;
+  --primary-glow: transparent;
+  --on-primary: #0f172a;
+  --secondary: #fb7185;
+  --on-secondary: #ffffff;
+  --error: #f87171;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 /* Global Base & Reset */
