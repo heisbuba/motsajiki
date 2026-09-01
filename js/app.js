@@ -6,12 +6,19 @@
     return localStorage.getItem(THEME_KEY) || 'dark';
   }
   
+ 
   function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem(THEME_KEY, theme);
     updateThemeIcon(theme);
+    updateThemeColorMeta(theme);
   }
 
+  function updateThemeColorMeta(theme) {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', theme === 'light' ? '#FFFFFF' : '#0A0A0A');
+  }
+  
   function updateThemeIcon(theme) {
     const themeIcon = document.getElementById('theme-icon');
     if (themeIcon) {
