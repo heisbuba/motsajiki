@@ -65,7 +65,7 @@
         const tpl = templatesById[log.templateId];
         const dateLabel = new Date(log.date).toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
         const vol = Math.round(StorageController.logVolume(log));
-        const bg = i % 2 === 0 ? 'var(--level-1)' : '#0D0D0D';
+        const bg = i % 2 === 0 ? 'var(--level-1)' : 'var(--level-0)';
         const name = (tpl && tpl.name) || 'Unknown';
         const exercise = log.metrics.exercise ? ' · ' + log.metrics.exercise : '';
         return `<div style="display:grid; grid-template-columns:1fr 2fr 1fr; gap:8px; padding:14px 16px; background:${bg}; border-bottom:1px solid var(--border); align-items:center;">
