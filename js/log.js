@@ -148,12 +148,12 @@
       StorageController.updateTemplate(editingTemplateId, {
         name, category: ctCategory.value.trim() || 'Custom', fields
       });
-      MotsaJiki.toast(`"${name}" updated.`);
+      MotsaJiki.toast(`"${name}" updated.`, 'success');
     } else {
       StorageController.addTemplate({
         name, category: ctCategory.value.trim() || 'Custom', icon: 'fitness_center', fields, custom: true
       });
-      MotsaJiki.toast(`"${name}" task created.`);
+      MotsaJiki.toast(`"${name}" task created.`, 'success');
     }
     resetCtForm();
     ctForm.style.display = 'none';
@@ -196,10 +196,10 @@
       addBtn.innerHTML = '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-add"></use></svg> Add Log';
       addBtn.classList.remove('btn-primary');
       addBtn.classList.add('btn-ghost');
-      MotsaJiki.toast('Log updated.');
+      MotsaJiki.toast('Log updated.', 'success');
     } else {
       StorageController.addLog({ templateId: tpl.id, notes: notesInput.value, metrics });
-      MotsaJiki.toast('Logged.');
+      MotsaJiki.toast('Log saved!', 'success');
     }
     notesInput.value = '';
     MotsaJiki.renderTemplateFields(tpl, fieldsContainer);

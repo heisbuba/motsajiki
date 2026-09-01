@@ -56,7 +56,7 @@
     targetValueInput.value = '';
     exerciseInput.value = '';
     deadlineInput.value = '';
-    MotsaJiki.toast('Target initialized.');
+    MotsaJiki.toast('New Goal Added.', 'success');
   });
 
   // Constructs a formatted target title string

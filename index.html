@@ -64,10 +64,6 @@
   <section class="block">
     <p class="hero-label" id="current-date-label">TODAY</p>
     <h2 class="hero-value" id="current-date">--</h2>
-    <button class="btn btn-primary" id="start-workout-btn" style="height:64px; margin-top:8px;">
-      <svg class="icon"><use href="/icons/icons.svg#icon-play_arrow"></use></svg>
-      START WORKOUT
-    </button>
   </section>
 
   <section class="block">
@@ -101,10 +97,10 @@
         <label class="field-label" for="template-selector">Task</label>
         <select class="control" id="template-selector"></select>
       </div>
-      <div class="grid-2" id="log-fields-container"></div>
+     <div class="grid-2" id="log-fields-container"></div>
       <div class="field-group">
         <label class="field-label" for="log-notes">Notes (optional)</label>
-        <input class="control" id="log-notes" type="text" placeholder="e.g. Morning warm-up session" />
+          <textarea class="control" id="log-notes" rows="3" placeholder="e.g. Morning warm-up session"></textarea>
       </div>
       <button class="btn btn-ghost" id="add-log-btn">
         <svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-add"></use></svg> Add Log
