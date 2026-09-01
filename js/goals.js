@@ -56,7 +56,7 @@
     targetValueInput.value = '';
     exerciseInput.value = '';
     deadlineInput.value = '';
-    MotsaJiki.toast('New Goal Added.', 'success');
+    MotsaJiki.toast('New Target Added.', 'success');
   });
 
   // Constructs a formatted target title string
@@ -146,7 +146,7 @@
       }).join('');
 
       activeList.querySelectorAll('[data-goal-id]').forEach(btn =>
-        btn.addEventListener('click', () => { StorageController.deleteGoal(btn.dataset.goalId); MotsaJiki.toast('Goal removed.'); }));
+        btn.addEventListener('click', () => { StorageController.deleteGoal(btn.dataset.goalId); MotsaJiki.toast('Target removed.'); }));
     }
 
     completedList.innerHTML = completed.length === 0
