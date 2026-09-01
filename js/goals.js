@@ -146,7 +146,7 @@
       }).join('');
 
       activeList.querySelectorAll('[data-goal-id]').forEach(btn =>
-        btn.addEventListener('click', () => { StorageController.deleteGoal(btn.dataset.goalId); MotsaJiki.toast('Target removed.'); }));
+        btn.addEventListener('click', () => { StorageController.deleteGoal(btn.dataset.goalId); MotsaJiki.toast('Goal removed.'); }));
     }
 
     completedList.innerHTML = completed.length === 0
