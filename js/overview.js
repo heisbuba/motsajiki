@@ -74,7 +74,7 @@
           <span style="font-family:var(--font-mono); font-weight:700; color:var(--primary-dim); text-align:right;">${vol.toLocaleString()}</span>
         </div>`;
       }).join('');
-      historyTable.innerHTML = `<div style="display:grid; grid-template-columns:1fr 2fr 1fr; gap:8px; padding:12px 16px; background:#0D0D0D; border-bottom:1px solid var(--border); font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); text-transform:uppercase;">
+      historyTable.innerHTML = `<div style="display:grid; grid-template-columns:1fr 2fr 1fr; gap:8px; padding:12px 16px; background:var(--level-2); border-bottom:1px solid var(--border); font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); text-transform:uppercase;">
         <span>Date</span><span>Exercise</span><span style="text-align:right;">Score</span>
       </div>${rows}`;
     }
