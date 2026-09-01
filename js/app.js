@@ -3,7 +3,7 @@
   const THEME_KEY = 'motsa_jiki_theme';
   
   function getStoredTheme() {
-    return localStorage.getItem(THEME_KEY) || 'dark';
+    return localStorage.getItem(THEME_KEY) || 'light';
   }
   
  
