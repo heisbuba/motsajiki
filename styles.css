@@ -1,6 +1,7 @@
+[file name]: styles.css
+[file content begin]
 :root,
-html[data-theme="night"],
-html[data-theme="dark"] {
+html[data-theme="night"] {
   --bg: #000000;
   --level-0: #000000;
   --level-1: #0f0f11;
@@ -35,6 +36,46 @@ html[data-theme="dark"] {
   --shadow-glow: none;
   --transition: all 0.15s ease-in-out;
 
+  --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Dark Mode (slate, not pure black) */
+html[data-theme="dark"] {
+  --bg: #0f172a;
+  --level-0: #0f172a;
+  --level-1: #1e293b;
+  --level-2: #334155;
+  --surface-container-high: #475569;
+  --surface-container-lowest: #020617;
+  --border: #334155;
+  --border-strong: #475569;
+ 
+  --on-surface: #f8fafc;
+  --on-surface-variant: #94a3b8;
+  --white: #ffffff;
+ 
+  --primary: #818cf8;
+  --primary-dim: #6366f1;
+  --primary-glow: transparent;
+  --on-primary: #0f172a;
+  --secondary: #fb7185;
+  --on-secondary: #ffffff;
+  --error: #f87171;
+ 
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+ 
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --radius-full: 9999px;
+  --touch-min: 44px;
+  --gutter: 16px;
+  --stack-gap: 16px;
+  --shadow-glow: none;
+  --transition: all 0.15s ease-in-out;
   --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -324,3 +365,4 @@ details.faq-item p { margin-top: 10px; font-size: 13px; line-height: 1.6; color:
 .tag { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 8px; border-radius: var(--radius-full); border: 1px solid transparent; }
 .tag-overdue { color: var(--error); border-color: var(--error); background: color-mix(in srgb, var(--error) 12%, transparent); }
 .tag-early { color: var(--primary); border-color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, transparent); }
+[file content end]
