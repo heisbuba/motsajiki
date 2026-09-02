@@ -127,6 +127,22 @@
     window.scrollTo(0, 0);
   }
 
+  const navPrefetchCache = new Map();
+  const pageMemoCache = new Map();
+
+  function prefetchPath(pathname) {
+    if (pageMemoCache.has(pathname)) return;
+    if (navPrefetchCache.has(pathname)) return;
+    const pending = fetch(pathname, { headers: { 'X-Motsa-Fragment': '1' } }).then(res => {
+      if (!res.ok) throw new Error(`Navigation prefetch failed: ${res.status}`);
+      return res.text();
+    }).catch(err => {
+      navPrefetchCache.delete(pathname);
+      throw err;
+    });
+    navPrefetchCache.set(pathname, pending);
+  }
+
   // Navigates to an internal URL by fetching its markup and swapping
   async function navigateTo(url, { push = true } = {}) {
     const target = new URL(url, location.href);
@@ -144,9 +160,22 @@
 
     let html;
     try {
-      const res = await fetch(target.pathname);
-      if (!res.ok) throw new Error(`Navigation fetch failed: ${res.status}`);
-      html = await res.text();
+      const memoized = pageMemoCache.get(target.pathname);
+      if (memoized) {
+        html = memoized;
+      } else {
+        let pending = navPrefetchCache.get(target.pathname);
+        if (pending) {
+          navPrefetchCache.delete(target.pathname);
+        } else {
+          pending = fetch(target.pathname, { headers: { 'X-Motsa-Fragment': '1' } }).then(res => {
+            if (!res.ok) throw new Error(`Navigation fetch failed: ${res.status}`);
+            return res.text();
+          });
+        }
+        html = await pending;
+        pageMemoCache.set(target.pathname, html);
+      }
     } catch (err) {
       console.warn('[router] fetch failed, falling back to full navigation', err);
       location.href = url;
@@ -170,6 +199,24 @@
     hydratePage();
     swapPageScript(newDoc);
     scrollToTarget(target.hash);
+  }
+
+  function wireRouterPrefetch() {
+    document.addEventListener('pointerdown', (e) => {
+      const anchor = e.target.closest('a[href]');
+      if (!anchor) return;
+      if (anchor.target && anchor.target !== '_self') return;
+      if (anchor.hasAttribute('download')) return;
+
+      let url;
+      try { url = new URL(anchor.getAttribute('href'), location.href); }
+      catch { return; }
+      if (url.origin !== location.origin) return;
+      if (url.pathname === currentPath) return;
+      if (pageMemoCache.has(url.pathname)) return;
+
+      prefetchPath(url.pathname);
+    });
   }
 
   // Intercepts clicks on same-origin, same-tab links 
@@ -378,6 +425,7 @@
     currentPageScriptEls = Array.from(document.querySelectorAll('script[src]'))
       .filter(el => !SHARED_SCRIPTS.has(el.getAttribute('src')));
     history.replaceState({ url: location.href }, '', location.href);
+    wireRouterPrefetch();
     wireRouterLinks();
 
     StorageController.subscribe(state => {

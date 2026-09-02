@@ -40,9 +40,7 @@ class ChromeInjector {
     this.pathname = pathname;
   }
   element(el) {
-    // First child of <body>: header.
     el.prepend(renderHeader(this.pathname), { html: true });
-    // Last child of <body>: bottom nav.
     el.append(renderNav(), { html: true });
   }
 }
@@ -52,6 +50,8 @@ export async function onRequest({ request, next }) {
 
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) return response;
+
+  if (request.headers.get('X-Motsa-Fragment') === '1') return response;
 
   const { pathname } = new URL(request.url);
   return new HTMLRewriter()
