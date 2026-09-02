@@ -112,9 +112,9 @@ section.block { display: flex; flex-direction: column; gap: var(--stack-gap); }
 }
 
 /* Individual navigation link element */
-.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 12px; border-radius: var(--radius); color: var(--on-surface-variant); font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; transition: var(--transition); cursor: pointer; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 12px; border-radius: var(--radius); color: var(--on-surface-variant); font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; transition: var(--transition); cursor: pointer; border: 1px solid transparent; }
 .nav-item:active { transform: scale(0.96); }
-.nav-item.nav-active { background: var(--level-2); color: var(--primary); font-weight: 600; border: 1px solid var(--border); }
+.nav-item.nav-active { background: var(--level-2); color: var(--primary); border-color: var(--border); }
 
 /* Segmented range toggle (used for chart time-range selection) */
 .range-toggle { display: flex; gap: 2px; background: var(--level-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 2px; }
