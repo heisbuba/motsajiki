@@ -236,9 +236,9 @@
     renderTemplateOptions(templates);
     renderManageList();
 
-    const today = new Date();
+    const todayKey = MotsaJikiSchema.localDateISO();
     const logs = StorageController.activeLogs()
-      .filter(l => new Date(l.date).toDateString() === today.toDateString())
+      .filter(l => l.localDate === todayKey)
       .sort((a, b) => new Date(b.date) - new Date(a.date));
 
     todayCount.textContent = `${logs.length} ENTR${logs.length === 1 ? 'Y' : 'IES'}`;

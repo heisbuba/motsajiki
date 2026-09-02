@@ -1,5 +1,5 @@
 (function (global) {
-  const CURRENT_VERSION = 2;
+  const CURRENT_VERSION = 3;
 
   // Generates unique identifiers with an optional prefix
   function uid(prefix) {
@@ -10,6 +10,15 @@
   // Returns current ISO timestamp
   function nowIso() {
     return new Date().toISOString();
+  }
+
+  // Returns this device's current local calendar day as YYYY-MM-DD.
+  // Fixed at call time so it never drifts when read back on a device in a different timezone.
+  function localDateISO(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   // Returns default task template configurations
@@ -94,7 +103,11 @@
     );
 
     out.taskTemplates = out.taskTemplates.map(fillRecord);
-    out.logs = out.logs.map(fillRecord);
+    out.logs = out.logs.map(fillRecord).map(l => {
+      if (l.localDate) return l;
+      const basis = l.date ? new Date(l.date) : new Date(l.updatedAt || doc.lastUpdated || Date.now());
+      return Object.assign({ localDate: localDateISO(basis) }, l);
+    });
     out.goals = out.goals.map(fillRecord);
 
     if (out.taskTemplates.length === 0) {
@@ -104,5 +117,5 @@
     return out;
   }
 
-  global.MotsaJikiSchema = { CURRENT_VERSION, uid, nowIso, emptyDoc, migrate, DEFAULT_TEMPLATES };
+  global.MotsaJikiSchema = { CURRENT_VERSION, uid, nowIso, localDateISO, emptyDoc, migrate, DEFAULT_TEMPLATES };
 })(window);

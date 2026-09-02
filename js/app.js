@@ -63,12 +63,7 @@
   }
 
   // Format date object to YYYY-MM-DD string
-  function localDateISO(date = new Date()) {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
+  const localDateISO = MotsaJikiSchema.localDateISO;
 
   // Extract current page file name from URL path
   function currentPageName() {

@@ -1,5 +1,5 @@
 (function (global) {
-  const { uid, nowIso, emptyDoc, migrate } = global.MotsaJikiSchema;
+  const { uid, nowIso, localDateISO, emptyDoc, migrate } = global.MotsaJikiSchema;
 
   let state = null;
   const listeners = new Set();
@@ -153,7 +153,7 @@
   function addLog({ templateId, notes, metrics }) {
     mutate(draft => {
       draft.logs.push({
-        id: uid('log'), templateId, date: nowIso(), notes: notes || '',
+        id: uid('log'), templateId, date: nowIso(), localDate: localDateISO(), notes: notes || '',
         metrics: metrics || {}, updatedAt: nowIso(), deleted: false
       });
     });
@@ -270,16 +270,16 @@
     '1y': { count: 12, unit: 'month', label: d => d.toLocaleDateString('en-US', { month: 'short' }) }
   };
 
+  // Keys logs by their fixed local calendar day
   function logsForDay(dateObj) {
-    const key = dateObj.toDateString();
-    return activeLogs().filter(l => new Date(l.date).toDateString() === key);
+    const key = localDateISO(dateObj);
+    return activeLogs().filter(l => l.localDate === key);
   }
 
   function logsForRange(start, end) {
-    return activeLogs().filter(l => {
-      const t = new Date(l.date);
-      return t >= start && t < end;
-    });
+    const startKey = localDateISO(start);
+    const endKey = localDateISO(end);
+    return activeLogs().filter(l => l.localDate >= startKey && l.localDate < endKey);
   }
 
   function currentStreak() {
