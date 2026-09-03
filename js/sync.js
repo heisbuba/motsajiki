@@ -1,5 +1,5 @@
 (function (global) {
-  const { uid, nowIso, localDateISO, emptyDoc, migrate } = global.MotsaJikiSchema;
+  const { uid, nowIso, emptyDoc, migrate } = global.MotsaJikiSchema;
 
   let state = null;
   const listeners = new Set();
@@ -42,12 +42,13 @@
   }
 
   // Persistence & Remote Sync Management
-
-  async function init() {
+  async function initLocal() {
     const cached = await MotsaJikiDB.getDoc().catch(() => null);
     state = migrate(cached || emptyDoc());
     emit();
-
+  }
+  
+  async function initRemoteSync() {
     const fsStatus = await FileSystemEngine.restore().catch(() => 'none');
     const driveOk = await GDriveEngine.trySilentAuth().catch(() => false);
 
@@ -55,6 +56,12 @@
       await pullAndMerge();
     }
     return { fsStatus, driveOk };
+  }
+
+  // Kept for compatibility / callers that want everything at once.
+  async function init() {
+    await initLocal();
+    return initRemoteSync();
   }
 
   async function pullAndMerge() {
@@ -78,7 +85,6 @@
     emit();
   }
 
-  // Saves to the local IndexedDB cache then drive
   async function pushAll() {
     await MotsaJikiDB.setDoc(state);
 
@@ -153,7 +159,7 @@
   function addLog({ templateId, notes, metrics }) {
     mutate(draft => {
       draft.logs.push({
-        id: uid('log'), templateId, date: nowIso(), localDate: localDateISO(), notes: notes || '',
+        id: uid('log'), templateId, date: nowIso(), notes: notes || '',
         metrics: metrics || {}, updatedAt: nowIso(), deleted: false
       });
     });
@@ -270,16 +276,16 @@
     '1y': { count: 12, unit: 'month', label: d => d.toLocaleDateString('en-US', { month: 'short' }) }
   };
 
-  // Keys logs by their fixed local calendar day
   function logsForDay(dateObj) {
-    const key = localDateISO(dateObj);
-    return activeLogs().filter(l => l.localDate === key);
+    const key = dateObj.toDateString();
+    return activeLogs().filter(l => new Date(l.date).toDateString() === key);
   }
 
   function logsForRange(start, end) {
-    const startKey = localDateISO(start);
-    const endKey = localDateISO(end);
-    return activeLogs().filter(l => l.localDate >= startKey && l.localDate < endKey);
+    return activeLogs().filter(l => {
+      const t = new Date(l.date);
+      return t >= start && t < end;
+    });
   }
 
   function currentStreak() {
@@ -351,7 +357,6 @@
   }
 
   function personalRecords() {
-    // Look templates up by id via a Map built once
     const templatesById = new Map(activeTemplates().map(t => [t.id, t]));
     const byKey = new Map();
     activeLogs().forEach(log => {
@@ -438,7 +443,7 @@
   }
 
   global.StorageController = {
-    subscribe, init, pullAndMerge, mutate, flushPending, pendingStatus,
+    subscribe, init, initLocal, initRemoteSync, pullAndMerge, mutate, flushPending, pendingStatus,
     addLog, updateLog, deleteLog, addTemplate, updateTemplate, deleteTemplate,
     addGoal, completeGoal, completeGoals, deleteGoal,
     getState: () => state,

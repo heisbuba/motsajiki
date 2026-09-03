@@ -63,7 +63,12 @@
   }
 
   // Format date object to YYYY-MM-DD string
-  const localDateISO = MotsaJikiSchema.localDateISO;
+  function localDateISO(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
 
   // Extract current page file name from URL path
   function currentPageName() {
@@ -79,11 +84,38 @@
     'js/gdrive.js', 'js/sync.js', 'js/app.js'
   ]);
 
+  // Pages that actually display synced data. 
+  const DATA_PAGES = new Set(['index.html', 'overview.html', 'goals.html', 'milestone.html']);
+
   let currentPageScriptEls = [];
   let currentPath = location.pathname;
+  let localInitPromise = null;
+  let remoteSyncStarted = false;
 
   function resetDataListeners() {
     dataListeners.length = 0;
+  }
+
+  async function ensureRemoteSync() {
+    if (remoteSyncStarted) return;
+    remoteSyncStarted = true;
+
+    if (localInitPromise) await localInitPromise;
+    await StorageController.initRemoteSync();
+    refreshSyncStatusUI();
+
+    if (FileSystemEngine.hasHandle && FileSystemEngine.hasHandle() && !FileSystemEngine.isConnected()) {
+      try {
+        await FileSystemEngine.reconnect();
+        await StorageController.pullAndMerge();
+        refreshSyncStatusUI();
+      } catch (_) {
+      }
+    }
+
+    setInterval(() => StorageController.pullAndMerge().then(refreshSyncStatusUI), 30000);
+    window.addEventListener('online', () => StorageController.pullAndMerge().then(refreshSyncStatusUI));
+    window.addEventListener('focus', () => StorageController.pullAndMerge().then(refreshSyncStatusUI));
   }
 
   function hydratePage() {
@@ -93,6 +125,9 @@
     const dateEl = document.getElementById('current-date');
     if (dateEl) {
       dateEl.textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
+    }
+    if (DATA_PAGES.has(currentPageName())) {
+      ensureRemoteSync();
     }
   }
 
@@ -122,22 +157,6 @@
     window.scrollTo(0, 0);
   }
 
-  const navPrefetchCache = new Map();
-  const pageMemoCache = new Map();
-
-  function prefetchPath(pathname) {
-    if (pageMemoCache.has(pathname)) return;
-    if (navPrefetchCache.has(pathname)) return;
-    const pending = fetch(pathname, { headers: { 'X-Motsa-Fragment': '1' } }).then(res => {
-      if (!res.ok) throw new Error(`Navigation prefetch failed: ${res.status}`);
-      return res.text();
-    }).catch(err => {
-      navPrefetchCache.delete(pathname);
-      throw err;
-    });
-    navPrefetchCache.set(pathname, pending);
-  }
-
   // Navigates to an internal URL by fetching its markup and swapping
   async function navigateTo(url, { push = true } = {}) {
     const target = new URL(url, location.href);
@@ -155,22 +174,9 @@
 
     let html;
     try {
-      const memoized = pageMemoCache.get(target.pathname);
-      if (memoized) {
-        html = memoized;
-      } else {
-        let pending = navPrefetchCache.get(target.pathname);
-        if (pending) {
-          navPrefetchCache.delete(target.pathname);
-        } else {
-          pending = fetch(target.pathname, { headers: { 'X-Motsa-Fragment': '1' } }).then(res => {
-            if (!res.ok) throw new Error(`Navigation fetch failed: ${res.status}`);
-            return res.text();
-          });
-        }
-        html = await pending;
-        pageMemoCache.set(target.pathname, html);
-      }
+      const res = await fetch(target.pathname);
+      if (!res.ok) throw new Error(`Navigation fetch failed: ${res.status}`);
+      html = await res.text();
     } catch (err) {
       console.warn('[router] fetch failed, falling back to full navigation', err);
       location.href = url;
@@ -196,24 +202,6 @@
     scrollToTarget(target.hash);
   }
 
-  function wireRouterPrefetch() {
-    document.addEventListener('pointerdown', (e) => {
-      const anchor = e.target.closest('a[href]');
-      if (!anchor) return;
-      if (anchor.target && anchor.target !== '_self') return;
-      if (anchor.hasAttribute('download')) return;
-
-      let url;
-      try { url = new URL(anchor.getAttribute('href'), location.href); }
-      catch { return; }
-      if (url.origin !== location.origin) return;
-      if (url.pathname === currentPath) return;
-      if (pageMemoCache.has(url.pathname)) return;
-
-      prefetchPath(url.pathname);
-    });
-  }
-
   // Intercepts clicks on same-origin, same-tab links 
   function wireRouterLinks() {
     document.addEventListener('click', (e) => {
@@ -222,7 +210,7 @@
 
       const anchor = e.target.closest('a[href]');
       if (!anchor) return;
-      if (anchor.target && anchor.target !== '_self') return; // e.g. target="_blank"
+      if (anchor.target && anchor.target !== '_self') return;
       if (anchor.hasAttribute('download')) return;
 
       let url;
@@ -415,12 +403,10 @@
   // Initialize application services and lifecycle handlers on load
   document.addEventListener('DOMContentLoaded', async () => {
     wireThemeControls();
-    hydratePage();
 
     currentPageScriptEls = Array.from(document.querySelectorAll('script[src]'))
       .filter(el => !SHARED_SCRIPTS.has(el.getAttribute('src')));
     history.replaceState({ url: location.href }, '', location.href);
-    wireRouterPrefetch();
     wireRouterLinks();
 
     StorageController.subscribe(state => {
@@ -428,22 +414,12 @@
       dataListeners.forEach(fn => fn(state));
     });
 
-    await StorageController.init();
+    localInitPromise = StorageController.initLocal();
+
+    hydratePage();
+
+    await localInitPromise;
     showWeeklyRecap();
-    refreshSyncStatusUI();
-
-    if (FileSystemEngine.hasHandle && FileSystemEngine.hasHandle() && !FileSystemEngine.isConnected()) {
-      try {
-        await FileSystemEngine.reconnect();
-        await StorageController.pullAndMerge();
-        refreshSyncStatusUI();
-      } catch (_) {
-      }
-    }
-
-    setInterval(() => StorageController.pullAndMerge().then(refreshSyncStatusUI), 30000);
-    window.addEventListener('online', () => StorageController.pullAndMerge().then(refreshSyncStatusUI));
-    window.addEventListener('focus', () => StorageController.pullAndMerge().then(refreshSyncStatusUI));
   });
 
   
@@ -481,7 +457,7 @@
     const allGroups = StorageController.personalRecordsGrouped();
     const headline = allGroups.map(g => ({
       title: g.title,
-      best: g.metrics[0],         
+      best: g.metrics[0],          
       extraCount: g.metrics.length - 1
     }));
     const groups = headline.slice(0, PR_EXPORT_MAX_TASKS);
