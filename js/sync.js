@@ -159,7 +159,7 @@
   function addLog({ templateId, notes, metrics }) {
     mutate(draft => {
       draft.logs.push({
-        id: uid('log'), templateId, date: nowIso(), notes: notes || '',
+        id: uid('log'), templateId, date: nowIso(), localDate: MotsaJikiSchema.localDateISO(), notes: notes || '',
         metrics: metrics || {}, updatedAt: nowIso(), deleted: false
       });
     });
