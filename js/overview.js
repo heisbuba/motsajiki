@@ -68,9 +68,12 @@
         const bg = i % 2 === 0 ? 'var(--level-1)' : 'var(--level-0)';
         const name = (tpl && tpl.name) || 'Unknown';
         const exercise = log.metrics.exercise ? ' · ' + log.metrics.exercise : '';
+        const noteMarkup = log.notes
+          ? `<span class="log-note-text" title="${escapeHtml(log.notes)}">${escapeHtml(log.notes)}</span>`
+          : '';
         return `<div style="display:grid; grid-template-columns:1fr 2fr 1fr; gap:8px; padding:14px 16px; background:${bg}; border-bottom:1px solid var(--border); align-items:center;">
           <span style="font-family:var(--font-mono); font-size:13px;">${escapeHtml(dateLabel)}</span>
-          <span>${escapeHtml(name)}${escapeHtml(exercise)}</span>
+          <span style="display:flex; flex-direction:column;">${escapeHtml(name)}${escapeHtml(exercise)}${noteMarkup}</span>
           <span style="font-family:var(--font-mono); font-weight:700; color:var(--primary-dim); text-align:right;">${vol.toLocaleString()}</span>
         </div>`;
       }).join('');

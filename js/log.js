@@ -255,6 +255,9 @@
       const time = new Date(log.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
       const name = (tpl && tpl.name) || 'Unknown';
       const exercise = log.metrics.exercise ? ' · ' + log.metrics.exercise : '';
+      const noteMarkup = log.notes
+        ? `<span class="log-note-text" title="${escapeHtml(log.notes)}">${escapeHtml(log.notes)}</span>`
+        : '';
       const row = document.createElement('div');
       row.className = 'log-item';
       row.innerHTML = `
@@ -262,6 +265,7 @@
         <div class="log-main">
           <span class="log-name">${escapeHtml(name)}${escapeHtml(exercise)}</span>
           <span class="log-time">${escapeHtml(time)}</span>
+          ${noteMarkup}
         </div>
         <div class="log-metrics">
           <span class="log-metric-primary">${primary}</span>
