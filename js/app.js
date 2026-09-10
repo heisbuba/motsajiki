@@ -444,14 +444,14 @@
     const ctx = canvas.getContext('2d');
     const W = 1080;
 
-    // Fetch design tokens from computed root styles for UI alignment
-    const computed = getComputedStyle(document.documentElement);
-    const bg = computed.getPropertyValue('--bg').trim() || '#0f172a';
-    const level1 = computed.getPropertyValue('--level-1').trim() || '#1e293b';
-    const border = computed.getPropertyValue('--border').trim() || '#334155';
-    const primary = computed.getPropertyValue('--primary').trim() || '#6366f1';
-    const onSurface = computed.getPropertyValue('--on-surface').trim() || '#f8fafc';
-    const onSurfaceVariant = computed.getPropertyValue('--on-surface-variant').trim() || '#94a3b8';
+    // Export card always uses the dark brand palette, independent of the
+    // app's active theme — this is a shareable card, not a theme mirror.
+    const bg = '#0f172a';
+    const level1 = '#1e293b';
+    const border = '#334155';
+    const primary = '#818cf8';
+    const onSurface = '#f8fafc';
+    const onSurfaceVariant = '#94a3b8';
 
     // Personal records, grouped by task, headline metric only.
     const allGroups = StorageController.personalRecordsGrouped();
