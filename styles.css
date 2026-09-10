@@ -156,7 +156,7 @@ section.block { display: flex; flex-direction: column; gap: var(--stack-gap); }
 .log-icon { width: 36px; height: 36px; border-radius: var(--radius); background: var(--level-2); display: flex; align-items: center; justify-content: center; color: var(--on-surface); flex-shrink: 0; font-size: 18px; }
 
 /* Log item details layout */
-.log-main { flex: 1; display: flex; flex-direction: column; }
+.log-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .log-name { font-weight: 600; font-size: 14px; }
 .log-time { font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant); }
 .log-note-text { font-size: 12px; font-style: italic; color: var(--on-surface-variant); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
