@@ -118,7 +118,10 @@
       const pp = StorageController.goalProgress(priority);
       priorityWrap.innerHTML = `
         <div class="priority-goal">
-          <span class="hero-label" style="margin:0;">PRIORITY GOAL</span>
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px;">
+            <span class="hero-label" style="margin:0;">PRIORITY GOAL</span>
+            <button class="log-delete" data-goal-id="${escapeHtml(priority.id)}" aria-label="Delete goal"><svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-close"></use></svg></button>
+          </div>
           <h3 style="font-size:22px;">${escapeHtml(goalTitle(priority, tplP))}</h3>
           <div style="display:flex; align-items:baseline; gap:8px;">
             <span class="hero-value" style="font-size:48px;">${pp.pct}%</span>
@@ -145,7 +148,7 @@
         </div>`;
       }).join('');
 
-      activeList.querySelectorAll('[data-goal-id]').forEach(btn =>
+      [...priorityWrap.querySelectorAll('[data-goal-id]'), ...activeList.querySelectorAll('[data-goal-id]')].forEach(btn =>
         btn.addEventListener('click', () => { StorageController.deleteGoal(btn.dataset.goalId); MotsaJiki.toast('Target removed.'); }));
     }
 
@@ -164,7 +167,11 @@
     const toComplete = StorageController.activeGoals()
       .filter(g => !g.completed && StorageController.goalProgress(g).pct >= 100)
       .map(g => g.id);
-    if (toComplete.length > 0) StorageController.completeGoals(toComplete);
+    if (toComplete.length > 0) {
+      StorageController.completeGoals(toComplete);
+      render(StorageController.getState());
+      return;
+    }
     render(state);
   });
 })();
