@@ -6,6 +6,7 @@
   const selector = document.getElementById('template-selector');
   const fieldsContainer = document.getElementById('log-fields-container');
   const notesInput = document.getElementById('log-notes');
+  const notesCounter = document.getElementById('log-notes-counter');
   const addBtn = document.getElementById('add-log-btn');
   const activityList = document.getElementById('activity-list');
   const todayCount = document.getElementById('today-count');
@@ -13,6 +14,15 @@
 
   let templatesById = {};
   let editingLogId = null;
+
+  const NOTES_MAX = 200;
+
+  // Keeps the 200 chars counter in sync with the notes field
+  function updateNotesCounter() {
+    notesCounter.textContent = `${notesInput.value.length}/${NOTES_MAX}`;
+  }
+
+  notesInput.addEventListener('input', updateNotesCounter);
 
   // Custom Template Manager DOM references
   const toggleBtn = document.getElementById('toggle-custom-template-btn');
@@ -202,6 +212,7 @@
       MotsaJiki.toast('Log saved!', 'success');
     }
     notesInput.value = '';
+    updateNotesCounter();
     MotsaJiki.renderTemplateFields(tpl, fieldsContainer);
   });
 
@@ -288,6 +299,7 @@
         selector.value = log.templateId;
         onTemplateChange();
         notesInput.value = log.notes || '';
+        updateNotesCounter();
         fieldsContainer.querySelectorAll('[data-field-key]').forEach(input => {
           if (log.metrics[input.dataset.fieldKey] !== undefined) {
             input.value = log.metrics[input.dataset.fieldKey];
