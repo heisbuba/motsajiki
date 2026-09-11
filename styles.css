@@ -280,8 +280,9 @@ select.control:focus, input.control:focus, textarea.control:focus { outline: non
 .toast-warn { border-color: var(--secondary); color: var(--secondary); background: var(--level-1); }
 .toast-success { border-color: var(--primary); color: var(--on-primary); background: var(--primary); }
 
-/* SVG icon sizing and baseline alignment (replaces the old Material Symbols icon font) */
-.icon { width: 20px; height: 20px; display: inline-block; vertical-align: middle; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+/* SVG icon sizing and baseline alignment. Icons are official Material Symbols (outlined, weight 400)
+   as single filled paths, so color comes from fill, not stroke. */
+.icon { width: 20px; height: 20px; display: inline-block; vertical-align: middle; flex-shrink: 0; fill: currentColor; stroke: none; }
 
 /* Social profile link icons row */
 .social-row .social-icons { display: flex; gap: 12px; justify-content: center; padding: 4px 0; }
