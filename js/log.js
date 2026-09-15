@@ -8,6 +8,7 @@
   const notesInput = document.getElementById('log-notes');
   const notesCounter = document.getElementById('log-notes-counter');
   const addBtn = document.getElementById('add-log-btn');
+  const cancelBtn = document.getElementById('cancel-log-btn');
   const activityList = document.getElementById('activity-list');
   const todayCount = document.getElementById('today-count');
   const startWorkoutBtn = document.getElementById('start-workout-btn');
@@ -191,6 +192,19 @@
 
   selector.addEventListener('change', onTemplateChange);
 
+  // Restores the log form to its default "Add Log" state, discarding any in-progress edit
+  function resetLogForm() {
+    editingLogId = null;
+    notesInput.value = '';
+    updateNotesCounter();
+    const tpl = templatesById[selector.value];
+    if (tpl) MotsaJiki.renderTemplateFields(tpl, fieldsContainer);
+    addBtn.innerHTML = '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-add"></use></svg> Add Log';
+    addBtn.classList.remove('btn-primary');
+    addBtn.classList.add('btn-ghost');
+    cancelBtn.style.display = 'none';
+  }
+
   // Submits a new workout log or updates an existing entry
   addBtn.addEventListener('click', () => {
     const tpl = templatesById[selector.value];
@@ -202,18 +216,17 @@
     }
     if (editingLogId) {
       StorageController.updateLog(editingLogId, { templateId: tpl.id, notes: notesInput.value, metrics });
-      editingLogId = null;
-      addBtn.innerHTML = '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-add"></use></svg> Add Log';
-      addBtn.classList.remove('btn-primary');
-      addBtn.classList.add('btn-ghost');
       MotsaJiki.toast('Log updated.', 'success');
     } else {
       StorageController.addLog({ templateId: tpl.id, notes: notesInput.value, metrics });
       MotsaJiki.toast('Log saved!', 'success');
     }
-    notesInput.value = '';
-    updateNotesCounter();
-    MotsaJiki.renderTemplateFields(tpl, fieldsContainer);
+    resetLogForm();
+  });
+
+  // Cancels an in-progress edit without saving changes
+  cancelBtn.addEventListener('click', () => {
+    resetLogForm();
   });
 
   if (startWorkoutBtn) {
@@ -308,6 +321,7 @@
         addBtn.innerHTML = '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-save"></use></svg> Update Log';
         addBtn.classList.remove('btn-ghost');
         addBtn.classList.add('btn-primary');
+        cancelBtn.style.display = '';
         document.getElementById('template-selector').closest('section').scrollIntoView({ behavior: 'smooth' });
       });
       activityList.appendChild(row);
