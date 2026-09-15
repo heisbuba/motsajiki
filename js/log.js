@@ -263,6 +263,10 @@
     renderTemplateOptions(templates);
     renderManageList();
 
+    if (!editingLogId) {
+      resetLogForm();
+    }
+
     const todayKey = MotsaJikiSchema.localDateISO();
     const logs = StorageController.activeLogs()
       .filter(l => l.localDate === todayKey)
