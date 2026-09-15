@@ -205,7 +205,7 @@
     addBtn.innerHTML = '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-add"></use></svg> Add Log';
     addBtn.classList.remove('btn-primary');
     addBtn.classList.add('btn-ghost');
-    cancelBtn.style.display = 'inline-flex';
+    cancelBtn.style.display = 'none';
   }
 
   // Submits a new workout log or updates an existing entry
