@@ -181,16 +181,19 @@
       selector.appendChild(opt);
     });
     if (prevValue && templates.some(t => t.id === prevValue)) selector.value = prevValue;
-    onTemplateChange();
+   
+    onTemplateChange({ preserve: true });
   }
 
-  // Handles dynamic form field generation when template selection changes
-  function onTemplateChange() {
+  function onTemplateChange({ preserve = false } = {}) {
     const tpl = templatesById[selector.value];
-    if (tpl) MotsaJiki.renderTemplateFields(tpl, fieldsContainer);
+    if (!tpl) return;
+    const existingValues = preserve ? MotsaJiki.readTemplateFields(fieldsContainer) : {};
+    MotsaJiki.renderTemplateFields(tpl, fieldsContainer, existingValues);
   }
 
-  selector.addEventListener('change', onTemplateChange);
+  // A genuine, deliberate template switch by the user should still start fresh.
+  selector.addEventListener('change', () => onTemplateChange());
 
   // Restores the log form to its default "Add Log" state, discarding any in-progress edit
   function resetLogForm() {
@@ -202,7 +205,7 @@
     addBtn.innerHTML = '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-add"></use></svg> Add Log';
     addBtn.classList.remove('btn-primary');
     addBtn.classList.add('btn-ghost');
-    cancelBtn.style.display = 'none';
+    cancelBtn.style.display = 'inline-flex';
   }
 
   // Submits a new workout log or updates an existing entry
