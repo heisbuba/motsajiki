@@ -14,27 +14,12 @@
 
   let templatesById = {};
   let editingLogId = null;
-  let lastRenderedTemplateKey = null;
 
   const NOTES_MAX = 200;
 
   // Keeps the 200 chars counter in sync with the notes field
   function updateNotesCounter() {
     notesCounter.textContent = `${notesInput.value.length}/${NOTES_MAX}`;
-  }
-
-  // Toggle form action button between 'Add Log' and 'Update Log' modes
-  function setAddMode(updating) {
-    addBtn.innerHTML = updating
-      ? '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-save"></use></svg> Update Log'
-      : '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-add"></use></svg> Add Log';
-    addBtn.classList.toggle('btn-primary', updating);
-    addBtn.classList.toggle('btn-ghost', !updating);
-  }
-
-  // Helper to check if a template layout has changed
-  function templateKey(tpl) {
-    return tpl ? `${tpl.id}:${JSON.stringify(tpl.fields)}` : '';
   }
 
   notesInput.addEventListener('input', updateNotesCounter);
@@ -185,7 +170,7 @@
   });
 
   // Updates options in the template select dropdown
-  function renderTemplateOptions(templates, editingLog = null) {
+  function renderTemplateOptions(templates) {
     const prevValue = selector.value;
     selector.innerHTML = '';
     templates.forEach(t => {
@@ -194,69 +179,33 @@
       opt.textContent = t.name;
       selector.appendChild(opt);
     });
-
-    const preferredValue = editingLog ? editingLog.templateId : prevValue;
-    if (preferredValue && templates.some(t => t.id === preferredValue)) {
-      selector.value = preferredValue;
-    }
-
-    if (editingLog && templatesById[editingLog.templateId]) {
-      onTemplateChange(editingLog.metrics || {});
-      notesInput.value = editingLog.notes || '';
-      updateNotesCounter();
-      setAddMode(true);
-      return;
-    }
-
-    setAddMode(false);
-    if (templateKey(templatesById[selector.value]) !== lastRenderedTemplateKey) {
-      onTemplateChange();
-    }
+    if (prevValue && templates.some(t => t.id === prevValue)) selector.value = prevValue;
+    onTemplateChange();
   }
 
   // Handles dynamic form field generation when template selection changes
-  function onTemplateChange(existingValues = {}) {
+  function onTemplateChange() {
     const tpl = templatesById[selector.value];
-    lastRenderedTemplateKey = templateKey(tpl);
-    if (tpl) MotsaJiki.renderTemplateFields(tpl, fieldsContainer, existingValues);
+    if (tpl) MotsaJiki.renderTemplateFields(tpl, fieldsContainer);
   }
 
-  // Populate form and switch UI to edit mode for a specific log
-  function startLogEdit(log) {
-    const tpl = templatesById[log.templateId];
-    if (!tpl) {
-      MotsaJiki.toast('The task for this log is no longer available.', 'warn');
-      return;
-    }
-
-    editingLogId = log.id;
-    selector.value = tpl.id;
-    onTemplateChange(log.metrics || {});
-    notesInput.value = log.notes || '';
-    updateNotesCounter();
-    setAddMode(true);
-
-    const section = selector.closest('section');
-    if (section) section.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  selector.addEventListener('change', () => onTemplateChange());
+  selector.addEventListener('change', onTemplateChange);
 
   // Submits a new workout log or updates an existing entry
   addBtn.addEventListener('click', () => {
     const tpl = templatesById[selector.value];
     if (!tpl) return;
-    const metrics = MotsaJiki.collectFieldValues ? MotsaJiki.collectFieldValues(fieldsContainer) : MotsaJiki.readTemplateFields(fieldsContainer);
+    const metrics = MotsaJiki.readTemplateFields(fieldsContainer);
     if (Object.keys(metrics).length === 0) {
       MotsaJiki.toast('Enter at least one value before logging.', 'warn');
       return;
     }
-
-    const editingId = editingLogId;
-    if (editingId) {
-      StorageController.updateLog(editingId, { templateId: tpl.id, notes: notesInput.value, metrics });
+    if (editingLogId) {
+      StorageController.updateLog(editingLogId, { templateId: tpl.id, notes: notesInput.value, metrics });
       editingLogId = null;
-      setAddMode(false);
+      addBtn.innerHTML = '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-add"></use></svg> Add Log';
+      addBtn.classList.remove('btn-primary');
+      addBtn.classList.add('btn-ghost');
       MotsaJiki.toast('Log updated.', 'success');
     } else {
       StorageController.addLog({ templateId: tpl.id, notes: notesInput.value, metrics });
@@ -264,13 +213,13 @@
     }
     notesInput.value = '';
     updateNotesCounter();
-    onTemplateChange();
+    MotsaJiki.renderTemplateFields(tpl, fieldsContainer);
   });
 
   if (startWorkoutBtn) {
-    startWorkoutBtn.addEventListener('click', () => {
-      document.getElementById('template-selector').closest('section').scrollIntoView({ behavior: 'smooth' });
-    });
+  startWorkoutBtn.addEventListener('click', () => {
+    document.getElementById('template-selector').closest('section').scrollIntoView({ behavior: 'smooth' });
+  });
   }
 
   // Returns display icon for a task template
@@ -295,14 +244,7 @@
   function render(state) {
     const templates = StorageController.activeTemplates();
     templatesById = Object.fromEntries(templates.map(t => [t.id, t]));
-
-    let editingLog = editingLogId
-      ? (state.logs || []).find(l => l.id === editingLogId && !l.deleted)
-      : null;
-
-    if (editingLogId && !editingLog) editingLogId = null;
-
-    renderTemplateOptions(templates, editingLog);
+    renderTemplateOptions(templates);
     renderManageList();
 
     const todayKey = MotsaJikiSchema.localDateISO();
@@ -341,20 +283,33 @@
           <span class="log-metric-secondary">${secondary}</span>
         </div>
         <div class="log-actions">
-          <button class="log-edit" type="button" aria-label="Edit log">
+          <button class="log-edit" aria-label="Edit log">
             <svg class="icon" style="width:20px;height:20px;"><use href="/icons/icons.svg#icon-edit"></use></svg>
           </button>
-          <button class="log-delete" type="button" data-log-id="${escapeHtml(log.id)}" aria-label="Delete log">
+          <button class="log-delete" data-log-id="${escapeHtml(log.id)}" aria-label="Delete log">
             <svg class="icon" style="width:20px;height:20px;"><use href="/icons/icons.svg#icon-close"></use></svg>
           </button>
         </div>`;
-
       row.querySelector('.log-delete').addEventListener('click', () => {
         StorageController.deleteLog(log.id);
         MotsaJiki.toast('Log removed.');
       });
-
-      row.querySelector('.log-edit').addEventListener('click', () => startLogEdit(log));
+      row.querySelector('.log-edit').addEventListener('click', () => {
+        editingLogId = log.id;
+        selector.value = log.templateId;
+        onTemplateChange();
+        notesInput.value = log.notes || '';
+        updateNotesCounter();
+        fieldsContainer.querySelectorAll('[data-field-key]').forEach(input => {
+          if (log.metrics[input.dataset.fieldKey] !== undefined) {
+            input.value = log.metrics[input.dataset.fieldKey];
+          }
+        });
+        addBtn.innerHTML = '<svg class="icon" style="width:18px;height:18px;"><use href="/icons/icons.svg#icon-save"></use></svg> Update Log';
+        addBtn.classList.remove('btn-ghost');
+        addBtn.classList.add('btn-primary');
+        document.getElementById('template-selector').closest('section').scrollIntoView({ behavior: 'smooth' });
+      });
       activityList.appendChild(row);
     });
   }
