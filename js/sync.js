@@ -64,7 +64,18 @@
     return initRemoteSync();
   }
 
+  // The access token lives ~1h and is not persisted across PWA restarts, so
+  // "linked but no live token" is the normal state after being offline/closed.
+  // Renew it silently before every Drive operation instead of treating it as
+  // disconnected.
+  async function ensureDriveAuth() {
+    if (GDriveEngine.isLinked() && !GDriveEngine.isConnected()) {
+      await GDriveEngine.trySilentAuth().catch(() => false);
+    }
+  }
+
   async function pullAndMerge() {
+    await ensureDriveAuth();
     let merged = state;
     if (FileSystemEngine.isConnected()) {
       try {
@@ -99,9 +110,10 @@
           })
       );
     }
-    if (GDriveEngine.isConnected()) {
+    if (GDriveEngine.isLinked()) {
       jobs.push(
-        GDriveEngine.save(state)
+        ensureDriveAuth()
+          .then(() => GDriveEngine.save(state))
           .then(() => MotsaJikiDB.setMeta('pendingDrive', false))
           .catch(e => {
             console.warn('[sync] Drive save failed, will retry', e);
@@ -127,9 +139,10 @@
           .catch(e => console.warn('[sync] FS retry still failing', e))
       );
     }
-    if (pendingDrive && GDriveEngine.isConnected()) {
+    if (pendingDrive && GDriveEngine.isLinked()) {
       jobs.push(
-        GDriveEngine.save(state)
+        ensureDriveAuth()
+          .then(() => GDriveEngine.save(state))
           .then(() => MotsaJikiDB.setMeta('pendingDrive', false))
           .catch(e => console.warn('[sync] Drive retry still failing', e))
       );

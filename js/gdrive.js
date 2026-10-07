@@ -151,23 +151,42 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: refreshToken })
     });
-    if (!res.ok) throw new Error('Token refresh failed');
+    if (!res.ok) {
+      let code = '';
+      try { code = (await res.json()).error || ''; } catch (e) {}
+      const err = new Error('Token refresh failed');
+      err.code = code;
+      err.status = res.status;
+      throw err;
+    }
     return res.json();
   }
 
-  // Silent renewal via our stored refresh token.
-  async function trySilentAuth() {
-    if (!getClientId()) return false;
-    if (!hasEverConnected()) return false;
-    if (hasValidToken()) return true;
+  let refreshInFlight = null;
+
+  // Silent renewal via our stored refresh token. Single-flight so the
+  // online/focus/visibility/interval triggers can't fire parallel refreshes.
+  // Only a dead grant (invalid_grant) discards the refresh token; offline or
+  // 5xx failures keep it so the next trigger can retry.
+  function trySilentAuth() {
+    if (!getClientId() || !hasEverConnected()) return Promise.resolve(false);
+    if (hasValidToken()) return Promise.resolve(true);
     const refreshToken = getRefreshToken();
-    if (!refreshToken) return false;
-    try {
-      applyTokenResponse(await refreshWithBackend(refreshToken));
-      return true;
-    } catch (err) {
-      return false;
+    if (!refreshToken) return Promise.resolve(false);
+    if (!refreshInFlight) {
+      refreshInFlight = (async () => {
+        try {
+          applyTokenResponse(await refreshWithBackend(refreshToken));
+          return true;
+        } catch (err) {
+          if (err && err.code === 'invalid_grant') clearRefreshToken();
+          return false;
+        } finally {
+          refreshInFlight = null;
+        }
+      })();
     }
+    return refreshInFlight;
   }
 
   // Must be called from a click handler. Runs the one-time consent popup and
@@ -198,8 +217,19 @@
     clearStoredFileId();
   }
 
+  // True only while we hold a live access token.
   function isConnected() {
     return hasValidToken();
+  }
+
+  // True when the user connected Drive and we can still renew silently,
+  // even if the short-lived access token has expired.
+  function isLinked() {
+    return hasEverConnected() && (hasValidToken() || !!getRefreshToken());
+  }
+
+  function hasRefreshToken() {
+    return !!getRefreshToken();
   }
 
   async function ensureToken() {
@@ -207,6 +237,26 @@
     const ok = await trySilentAuth();
     if (!ok) throw new Error('Google Drive session expired -- reconnect required.');
     return accessToken;
+  }
+
+  function withAuth(init, token) {
+    return Object.assign({}, init, {
+      headers: Object.assign({}, init.headers || {}, { Authorization: `Bearer ${token}` })
+    });
+  }
+
+  // Fetch with the current token; on 401 (expired/revoked early) renew once and retry.
+  async function authedFetch(url, init = {}) {
+    let token = await ensureToken();
+    let res = await fetch(url, withAuth(init, token));
+    if (res.status === 401) {
+      accessToken = null;
+      tokenExpiresAt = 0;
+      clearPersistedToken();
+      token = await ensureToken();
+      res = await fetch(url, withAuth(init, token));
+    }
+    return res;
   }
 
   async function findFileId() {
@@ -219,12 +269,11 @@
     // Fallback for the very first lookup before we've ever cached an ID
     // (e.g. right after signIn, or a fresh browser profile). Once found,
     // we persist the ID and never search by name again.
-    const token = await ensureToken();
     const url = 'https://www.googleapis.com/drive/v3/files?' + new URLSearchParams({
       fields: 'files(id,name)',
       q: `name='${FILE_NAME}' and trashed=false`
     });
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    const res = await authedFetch(url);
     if (!res.ok) throw new Error(`Drive list failed: ${res.status}`);
     const data = await res.json();
     cachedFileId = (data.files && data.files[0]) ? data.files[0].id : null;
@@ -233,12 +282,9 @@
   }
 
   async function load() {
-    const token = await ensureToken();
     const fileId = await findFileId();
     if (!fileId) return null;
-    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res = await authedFetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
     if (res.status === 404) {
       // File was deleted, or permanently removed from the app's drive.file
       // grant some other way. Forget the stale ID so the next save() creates
@@ -252,7 +298,6 @@
   }
 
   async function save(doc) {
-    const token = await ensureToken();
     const fileId = await findFileId();
     const body = JSON.stringify(doc, null, 2);
     const boundary = 'motsa-jiki-boundary';
@@ -267,10 +312,9 @@
       ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
       : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
 
-    const res = await fetch(url, {
+    const res = await authedFetch(url, {
       method: fileId ? 'PATCH' : 'POST',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': `multipart/related; boundary=${boundary}`
       },
       body: multipartBody
@@ -286,6 +330,6 @@
 
   global.GDriveEngine = {
     getClientId, setClientId, trySilentAuth, signIn, signOut,
-    isConnected, hasEverConnected, load, save
+    isConnected, isLinked, hasRefreshToken, hasEverConnected, load, save
   };
 })(window);

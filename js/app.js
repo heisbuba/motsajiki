@@ -16,7 +16,7 @@
 
   function updateThemeColorMeta(theme) {
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'light' ? '#FFFFFF' : '#0A0A0A');
+    if (meta) meta.setAttribute('content', theme === 'light' ? '#FFFFFF' : '#0F172A');
   }
   
   function updateThemeIcon(theme) {
@@ -113,9 +113,23 @@
       }
     }
 
-    setInterval(() => StorageController.pullAndMerge().then(refreshSyncStatusUI), 30000);
-    window.addEventListener('online', () => StorageController.pullAndMerge().then(refreshSyncStatusUI));
-    window.addEventListener('focus', () => StorageController.pullAndMerge().then(refreshSyncStatusUI));
+    const resyncNow = () => StorageController.pullAndMerge()
+      .catch(e => console.warn('[sync] resync failed', e))
+      .then(refreshSyncStatusUI);
+
+    setInterval(resyncNow, 30000);
+    window.addEventListener('online', () => {
+      resyncNow();
+      // The network is often not usable the instant 'online' fires; retry once.
+      setTimeout(() => {
+        if (GDriveEngine.isLinked() && !GDriveEngine.isConnected()) resyncNow();
+      }, 3000);
+    });
+    window.addEventListener('focus', resyncNow);
+    // More reliable than 'focus' for installed PWAs resuming from background.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') resyncNow();
+    });
   }
 
   function hydratePage() {
@@ -290,6 +304,9 @@
     if (GDriveEngine.isConnected()) {
       setDot(driveDot, pending.drive ? 'warn' : 'on');
       if (driveLabel) driveLabel.textContent = pending.drive ? 'Google Drive (retrying...)' : 'Google Drive (connected)';
+    } else if (GDriveEngine.isLinked()) {
+      setDot(driveDot, 'warn');
+      if (driveLabel) driveLabel.textContent = 'Google Drive (reconnecting...)';
     } else if (GDriveEngine.hasEverConnected()) {
       setDot(driveDot, 'warn');
       if (driveLabel) driveLabel.textContent = 'Google Drive (reconnect needed)';
@@ -342,7 +359,14 @@
       return;
     }
     try {
-      await GDriveEngine.signIn();
+      // Linked but token expired: renew silently, no consent popup.
+      const restored = GDriveEngine.isLinked() && await GDriveEngine.trySilentAuth();
+      if (!restored) {
+        await GDriveEngine.signIn();
+        if (!GDriveEngine.hasRefreshToken()) {
+          toast('Connected for this session only. Google did not allow offline access; reconnect later if sync stops.', 'warn');
+        }
+      }
       toast('Google Drive connected.');
       await StorageController.pullAndMerge();
     } catch (err) {

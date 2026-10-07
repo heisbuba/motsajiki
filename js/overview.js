@@ -167,7 +167,7 @@
   // Subscribe to global data updates and trigger initial auto-sync
   MotsaJiki.onData(state => {
     render(state);
-    if (!didAutoSync && GDriveEngine.isConnected()) {
+    if (!didAutoSync && GDriveEngine.isLinked()) {
       didAutoSync = true;
       StorageController.pullAndMerge().then(() => MotsaJiki.refreshSyncStatusUI());
     }
